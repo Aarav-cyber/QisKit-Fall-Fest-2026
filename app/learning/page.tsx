@@ -21,6 +21,8 @@ import {
   Users,
 } from 'lucide-react';
 
+import { CertificateModal } from '@/components/learning/CertificateModal';
+
 interface ProgressData {
   unlocked: boolean;
   videoCompleted: boolean;
@@ -37,6 +39,8 @@ export default function LearningDashboardPage() {
   const [isSubmittingComp, setIsSubmittingComp] = useState<Record<string, boolean>>({});
   const [compSuccessMsg, setCompSuccessMsg] = useState<Record<string, string>>({});
   const [isHackathonUnlocked, setIsHackathonUnlocked] = useState(false);
+  const [isCertModalOpen, setIsCertModalOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState<{ email: string; fullName: string } | null>(null);
 
   useEffect(() => {
     fetchProgress();
@@ -126,7 +130,7 @@ export default function LearningDashboardPage() {
   const currentDailyComp = DAILY_COMPETITIONS[activeDay];
 
   return (
-    <AuthGate>
+    <AuthGate onSessionChange={(s) => setCurrentUser(s ? { email: s.email, fullName: s.fullName } : null)}>
       <div className="min-h-screen bg-slate-50/60 pb-16">
         {/* Sub-header Hero */}
         <div className="bg-white border-b border-slate-200">
@@ -150,24 +154,47 @@ export default function LearningDashboardPage() {
                 </p>
               </div>
 
-              {/* Hackathon banner link */}
-              <div className="p-3.5 rounded-lg border border-burgundy/20 bg-burgundy/[0.03] flex items-center justify-between gap-4 shrink-0">
-                <div>
-                  <div className="flex items-center gap-1.5 text-burgundy font-bold text-xs">
-                    <Users className="w-3.5 h-3.5" />
-                    Hackathon Phase (Oct 10)
-                  </div>
-                  <span className="text-[11px] text-slate-600 block">
-                    Team formation & 20 Problem Statements
-                  </span>
-                </div>
-                <Link
-                  href="/learning/hackathon"
-                  className="px-3.5 py-1.5 bg-burgundy text-white text-xs font-semibold rounded hover:bg-burgundy-deep transition-colors shrink-0 flex items-center gap-1"
+              {/* Action Banner Links */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
+                {/* Certificate Claim Button */}
+                <button
+                  type="button"
+                  onClick={() => setIsCertModalOpen(true)}
+                  className="p-3.5 rounded-lg border border-amber-200 bg-amber-50/50 hover:bg-amber-100/60 transition-colors flex items-center justify-between gap-4 text-left cursor-pointer"
                 >
-                  Workspace
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </Link>
+                  <div>
+                    <div className="flex items-center gap-1.5 text-amber-900 font-bold text-xs">
+                      <Award className="w-3.5 h-3.5 text-amber-700" />
+                      Official Certificate
+                    </div>
+                    <span className="text-[11px] text-slate-600 block">
+                      Check eligibility & claim
+                    </span>
+                  </div>
+                  <span className="px-2.5 py-1 bg-amber-700 text-white text-[11px] font-semibold rounded shrink-0">
+                    Claim
+                  </span>
+                </button>
+
+                {/* Hackathon banner link */}
+                <div className="p-3.5 rounded-lg border border-burgundy/20 bg-burgundy/[0.03] flex items-center justify-between gap-4 shrink-0">
+                  <div>
+                    <div className="flex items-center gap-1.5 text-burgundy font-bold text-xs">
+                      <Users className="w-3.5 h-3.5" />
+                      Hackathon Phase (Oct 10)
+                    </div>
+                    <span className="text-[11px] text-slate-600 block">
+                      Team formation & 20 PS
+                    </span>
+                  </div>
+                  <Link
+                    href="/learning/hackathon"
+                    className="px-3.5 py-1.5 bg-burgundy text-white text-xs font-semibold rounded hover:bg-burgundy-deep transition-colors shrink-0 flex items-center gap-1"
+                  >
+                    Workspace
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </Link>
+                </div>
               </div>
             </div>
 
@@ -408,6 +435,13 @@ export default function LearningDashboardPage() {
           </div>
         </div>
       </div>
+
+      <CertificateModal
+        isOpen={isCertModalOpen}
+        onClose={() => setIsCertModalOpen(false)}
+        userEmail={currentUser?.email || ''}
+        userName={currentUser?.fullName || currentUser?.email || 'Candidate'}
+      />
     </AuthGate>
   );
 }
