@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
+import {
+  getPlatformConfigCached,
+  getUserProgressCached,
+  invalidateUserProgressCache,
+} from '@/lib/redis';
 import { CURRICULUM_SESSIONS } from '@/data/learning/curriculum';
 import { SESSION_QUIZZES } from '@/data/learning/quizzes';
 
@@ -11,25 +16,37 @@ export async function GET() {
   }
 
   try {
-    // 1. Check if global lock override is active
-    const { data: configData } = await supabase
-      .from('platform_config')
-      .select('value')
-      .eq('key', 'lecture_lock_override')
-      .maybeSingle();
+    // 1. Check if global lock override is active (Cache-Aside with 1-hr TTL)
+    const overrideValue = await getPlatformConfigCached<{ enabled?: boolean } | null>(
+      'lecture_lock_override',
+      async () => {
+        const { data } = await supabase
+          .from('platform_config')
+          .select('value')
+          .eq('key', 'lecture_lock_override')
+          .maybeSingle();
+        return data?.value ?? null;
+      }
+    );
 
-    const isLockOverridden = configData?.value?.enabled === true;
+    const isLockOverridden = overrideValue?.enabled === true;
 
-    // 2. Fetch user progress records
-    const { data: records, error } = await supabase
-      .from('user_progress')
-      .select('*')
-      .ilike('email', session.email);
+    // 2. Fetch user progress records (Cache-Aside with 10-min TTL)
+    const records = await getUserProgressCached<any[]>(
+      session.email,
+      async () => {
+        const { data, error } = await supabase
+          .from('user_progress')
+          .select('*')
+          .ilike('email', session.email);
 
-    if (error) throw error;
+        if (error) throw error;
+        return data || [];
+      }
+    );
 
     const progressMap = new Map(
-      (records || []).map((r) => [r.session_id, r])
+      (records || []).map((r: any) => [r.session_id, r])
     );
 
     // 3. Compute locked/unlocked state sequentially
@@ -113,6 +130,10 @@ export async function POST(request: NextRequest) {
         .single();
 
       if (error) throw error;
+
+      // Invalidate cache-aside progress cache
+      await invalidateUserProgressCache(session.email);
+
       return NextResponse.json({ success: true, data });
     }
 
@@ -154,6 +175,9 @@ export async function POST(request: NextRequest) {
         .single();
 
       if (error) throw error;
+
+      // Invalidate cache-aside progress cache
+      await invalidateUserProgressCache(session.email);
 
       return NextResponse.json({
         success: true,

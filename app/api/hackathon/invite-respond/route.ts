@@ -56,7 +56,18 @@ export async function POST(request: NextRequest) {
 
     if (updateErr) throw updateErr;
 
-    await invalidateEmailCache(session.email);
+    // Invalidate caches for all members in the team so team rosters stay consistent
+    const { data: teamMembers } = await supabase
+      .from('team_members')
+      .select('email')
+      .eq('team_id', invite.team_id);
+
+    const memberEmails = new Set<string>([session.email]);
+    (teamMembers || []).forEach((m) => {
+      if (m.email) memberEmails.add(m.email.toLowerCase());
+    });
+
+    await Promise.all(Array.from(memberEmails).map((e) => invalidateEmailCache(e)));
 
     return NextResponse.json({
       success: true,

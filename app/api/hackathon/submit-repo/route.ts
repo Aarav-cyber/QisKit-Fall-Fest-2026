@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
+import { invalidateHackathonTeamCache } from '@/lib/redis';
 
 export async function POST(request: NextRequest) {
   const session = await getServerSession();
@@ -64,6 +65,20 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (updateErr) throw updateErr;
+
+    // Invalidate cached team data for all members of this team
+    const { data: teamMembers } = await supabase
+      .from('team_members')
+      .select('email')
+      .eq('team_id', teamId);
+
+    const memberEmails = (teamMembers || [])
+      .map((m) => m.email)
+      .filter(Boolean) as string[];
+
+    if (memberEmails.length > 0) {
+      await invalidateHackathonTeamCache(memberEmails);
+    }
 
     return NextResponse.json({
       success: true,

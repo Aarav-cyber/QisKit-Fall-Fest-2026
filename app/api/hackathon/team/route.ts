@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
-import { isEmailWhitelisted, invalidateEmailCache } from '@/lib/redis';
+import {
+  isEmailWhitelisted,
+  invalidateEmailCache,
+  getHackathonTeamCached,
+  invalidateHackathonTeamCache,
+} from '@/lib/redis';
 
 export async function GET() {
   const session = await getServerSession();
@@ -10,70 +15,74 @@ export async function GET() {
   }
 
   try {
-    // 1. Check if user is a member of an active team (leader or accepted member)
-    const { data: memberEntry } = await supabase
-      .from('team_members')
-      .select('team_id, role, status')
-      .ilike('email', session.email)
-      .neq('status', 'declined')
-      .maybeSingle();
-
-    let team = null;
-    let pendingInvitations: any[] = [];
-
-    if (memberEntry) {
-      // Fetch full team with all members
-      const { data: teamData } = await supabase
-        .from('hackathon_teams')
-        .select('*')
-        .eq('id', memberEntry.team_id)
+    const data = await getHackathonTeamCached(session.email, async () => {
+      // 1. Check if user is a member of an active team (leader or accepted member)
+      const { data: memberEntry } = await supabase
+        .from('team_members')
+        .select('team_id, role, status')
+        .ilike('email', session.email)
+        .neq('status', 'declined')
         .maybeSingle();
 
-      if (teamData) {
-        const { data: allMembers } = await supabase
-          .from('team_members')
+      let team = null;
+      let pendingInvitations: any[] = [];
+
+      if (memberEntry) {
+        // Fetch full team with all members
+        const { data: teamData } = await supabase
+          .from('hackathon_teams')
           .select('*')
-          .eq('team_id', memberEntry.team_id)
-          .order('role', { ascending: true }); // leader first
+          .eq('id', memberEntry.team_id)
+          .maybeSingle();
 
-        team = {
-          ...teamData,
-          currentUserRole: memberEntry.role,
-          currentUserStatus: memberEntry.status,
-          members: allMembers || [],
-        };
+        if (teamData) {
+          const { data: allMembers } = await supabase
+            .from('team_members')
+            .select('*')
+            .eq('team_id', memberEntry.team_id)
+            .order('role', { ascending: true }); // leader first
+
+          team = {
+            ...teamData,
+            currentUserRole: memberEntry.role,
+            currentUserStatus: memberEntry.status,
+            members: allMembers || [],
+          };
+        }
       }
-    }
 
-    // 2. Also check if user has any pending invitations from OTHER teams
-    const { data: invites } = await supabase
-      .from('team_members')
-      .select('id, team_id, invited_at, hackathon_teams(name, vertical, problem_statement_id, lead_name, lead_email)')
-      .ilike('email', session.email)
-      .eq('status', 'invited');
+      // 2. Also check if user has any pending invitations from OTHER teams
+      const { data: invites } = await supabase
+        .from('team_members')
+        .select('id, team_id, invited_at, hackathon_teams(name, vertical, problem_statement_id, lead_name, lead_email)')
+        .ilike('email', session.email)
+        .eq('status', 'invited');
 
-    if (invites && invites.length > 0) {
-      pendingInvitations = invites.map((inv) => ({
-        invitationId: inv.id,
-        teamId: inv.team_id,
-        invitedAt: inv.invited_at,
-        // @ts-expect-error join
-        teamName: inv.hackathon_teams?.name,
-        // @ts-expect-error join
-        vertical: inv.hackathon_teams?.vertical,
-        // @ts-expect-error join
-        problemStatementId: inv.hackathon_teams?.problem_statement_id,
-        // @ts-expect-error join
-        leadName: inv.hackathon_teams?.lead_name,
-        // @ts-expect-error join
-        leadEmail: inv.hackathon_teams?.lead_email,
-      }));
-    }
+      if (invites && invites.length > 0) {
+        pendingInvitations = invites.map((inv) => ({
+          invitationId: inv.id,
+          teamId: inv.team_id,
+          invitedAt: inv.invited_at,
+          // @ts-expect-error join
+          teamName: inv.hackathon_teams?.name,
+          // @ts-expect-error join
+          vertical: inv.hackathon_teams?.vertical,
+          // @ts-expect-error join
+          problemStatementId: inv.hackathon_teams?.problem_statement_id,
+          // @ts-expect-error join
+          leadName: inv.hackathon_teams?.lead_name,
+          // @ts-expect-error join
+          leadEmail: inv.hackathon_teams?.lead_email,
+        }));
+      }
 
-    return NextResponse.json({
-      team,
-      pendingInvitations,
+      return {
+        team,
+        pendingInvitations,
+      };
     });
+
+    return NextResponse.json(data);
   } catch (error) {
     console.error('Error fetching hackathon team:', error);
     return NextResponse.json(

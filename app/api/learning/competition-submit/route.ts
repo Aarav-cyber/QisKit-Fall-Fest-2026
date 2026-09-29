@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
+import {
+  getCompetitionSubmissionsCached,
+  invalidateCompetitionSubmissionsCache,
+} from '@/lib/redis';
 
 export async function GET() {
   const session = await getServerSession();
@@ -9,17 +13,23 @@ export async function GET() {
   }
 
   try {
-    const { data, error } = await supabase
-      .from('competition_submissions')
-      .select('*')
-      .ilike('email', session.email);
+    const submissionsMap = await getCompetitionSubmissionsCached(
+      session.email,
+      async () => {
+        const { data, error } = await supabase
+          .from('competition_submissions')
+          .select('*')
+          .ilike('email', session.email);
 
-    if (error) throw error;
+        if (error) throw error;
 
-    const submissionsMap: Record<string, any> = {};
-    (data || []).forEach((sub) => {
-      submissionsMap[sub.competition_type] = sub;
-    });
+        const map: Record<string, any> = {};
+        (data || []).forEach((sub) => {
+          map[sub.competition_type] = sub;
+        });
+        return map;
+      }
+    );
 
     return NextResponse.json({
       submissions: submissionsMap,
@@ -76,6 +86,9 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) throw error;
+
+    // Invalidate cached submissions for this user
+    await invalidateCompetitionSubmissionsCache(session.email);
 
     return NextResponse.json({
       success: true,

@@ -104,6 +104,9 @@ export async function POST(request: NextRequest) {
           console.warn('Error populating redis:', cacheErr);
         }
       }
+      try {
+        await redis.del('admin:config_and_stats', 'admin:stats_overview');
+      } catch {}
     }
 
     return NextResponse.json({
