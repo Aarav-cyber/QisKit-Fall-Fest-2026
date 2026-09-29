@@ -38,6 +38,9 @@ export function Navbar() {
   const headerRef = React.useRef<HTMLElement>(null);
   const progressBarRef = React.useRef<HTMLDivElement>(null);
 
+  const [isNavbarVisible, setIsNavbarVisible] = React.useState(true);
+  const lastScrollY = React.useRef(0);
+
   const activeTheme = resolvedTheme || theme;
 
   // Scroll-progress line handler (uses RAF and direct transform scaleX, no React re-renders)
@@ -56,7 +59,28 @@ export function Navbar() {
     const handleScroll = () => {
       if (!ticking) {
         ticking = true;
-        requestAnimationFrame(updateScrollProgress);
+        requestAnimationFrame(() => {
+          updateScrollProgress();
+          
+          // Auto-hide logic for /learning routes
+          if (pathname?.startsWith('/learning')) {
+            // Visibility is strictly controlled by mouse hover (handleMouseMove)
+            lastScrollY.current = window.scrollY;
+          } else {
+            // Always visible on non-learning routes
+            setIsNavbarVisible(true);
+          }
+        });
+      }
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (pathname?.startsWith('/learning')) {
+        if (e.clientY <= 80) {
+          setIsNavbarVisible(true);
+        } else {
+          setIsNavbarVisible(false);
+        }
       }
     };
 
@@ -66,13 +90,20 @@ export function Navbar() {
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('resize', handleResize, { passive: true });
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
 
     // Initial update
     updateScrollProgress();
 
+    // Hide navbar initially on learning routes
+    if (pathname?.startsWith('/learning')) {
+      setIsNavbarVisible(false);
+    }
+
     return () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleResize);
+      window.removeEventListener('mousemove', handleMouseMove);
     };
   }, [pathname]);
 
@@ -103,10 +134,16 @@ export function Navbar() {
     };
   }, [mobileMenuOpen]);
 
+  // (Removed completely hiding logic to allow hover reveal)
+
   return (
     <header 
       ref={headerRef}
-      className="sticky top-0 z-50 w-full border-b border-[var(--nav-border)]/60 bg-[#F5F3F0]/85 dark:bg-[linear-gradient(105deg,rgba(22,6,8,0.85)_0%,rgba(36,9,12,0.85)_42%,rgba(58,11,16,0.85)_72%,rgba(36,9,12,0.85)_100%)] backdrop-blur-xl text-[var(--nav-text)] transition-colors duration-300 shadow-[0_4px_24px_rgba(0,0,0,0.03)] dark:shadow-[0_4px_30px_rgba(0,0,0,0.28)]"
+      className={clsx(
+        pathname?.startsWith('/learning') ? "fixed" : "sticky",
+        "top-0 z-[60] w-full border-b border-[var(--nav-border)]/60 bg-[#F5F3F0]/85 dark:bg-[linear-gradient(105deg,rgba(22,6,8,0.85)_0%,rgba(36,9,12,0.85)_42%,rgba(58,11,16,0.85)_72%,rgba(36,9,12,0.85)_100%)] backdrop-blur-xl text-[var(--nav-text)] transition-transform duration-300 shadow-[0_4px_24px_rgba(0,0,0,0.03)] dark:shadow-[0_4px_30px_rgba(0,0,0,0.28)]",
+        !isNavbarVisible && "-translate-y-full"
+      )}
       style={{
         backdropFilter: 'blur(20px) saturate(180%)',
         WebkitBackdropFilter: 'blur(20px) saturate(180%)',

@@ -191,46 +191,8 @@ export function AuthGate({ children, onSessionChange }: AuthGateProps) {
     );
   }
 
-  // If user is authenticated, show small header badge with sign-out and render children
   if (session) {
-    return (
-      <div>
-        <div className="bg-slate-50 border-b border-slate-200 px-4 py-2.5 text-xs text-slate-600 flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200 font-medium">
-              <CheckCircle className="w-3.5 h-3.5" />
-              Authenticated
-            </span>
-            <span className="font-semibold text-slate-800">{session.fullName || session.email}</span>
-            <span className="text-slate-400">({session.email})</span>
-            {session.isAdmin && (
-              <span className="px-1.5 py-0.5 rounded bg-burgundy/10 text-burgundy font-semibold text-[10px] uppercase tracking-wider">
-                Admin
-              </span>
-            )}
-          </div>
-          <div className="flex items-center gap-3">
-            {session.isAdmin && (
-              <a
-                href="/learning/admin"
-                className="font-medium text-burgundy hover:underline flex items-center gap-1"
-              >
-                <Shield className="w-3.5 h-3.5" />
-                Admin Console
-              </a>
-            )}
-            <button
-              onClick={handleSignOut}
-              className="text-slate-500 hover:text-slate-800 flex items-center gap-1 transition-colors cursor-pointer"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-              Sign Out
-            </button>
-          </div>
-        </div>
-        {children}
-      </div>
-    );
+    return <>{children}</>;
   }
 
   // If not authenticated, render login gate + Toast

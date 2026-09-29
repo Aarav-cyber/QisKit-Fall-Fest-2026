@@ -228,39 +228,22 @@ export default function HackathonWorkspacePage() {
 
   return (
     <AuthGate onSessionChange={setSessionUser}>
-      <div className="min-h-screen bg-slate-50/60 pb-16">
-        {/* Navigation Breadcrumb Bar */}
-        <div className="bg-white border-b border-slate-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between">
-            <Link
-              href="/learning"
-              className="text-xs font-semibold text-slate-600 hover:text-slate-900 flex items-center gap-1.5 transition-colors"
-            >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              Back to Curriculum Hub
-            </Link>
+      <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
 
-            <span className="px-2.5 py-0.5 rounded bg-burgundy/10 text-burgundy font-bold text-xs uppercase tracking-wider">
-              Flagship Hackathon Workspace
-            </span>
-          </div>
-        </div>
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
           {/* Header */}
           <div className="mb-8">
             <div className="flex items-center gap-2 mb-1.5">
-              <span className="px-2.5 py-0.5 rounded bg-slate-200 text-slate-800 font-bold text-xs">
+              <span className="px-2.5 py-0.5 rounded bg-slate-200 text-slate-800 font-bold text-sm">
                 Phase 1 Sprint
               </span>
-              <span className="text-xs text-slate-500 font-medium">
+              <span className="text-base text-slate-500 font-medium">
                 Releases 10 October 2026 · Algorithm-Architecture Co-Design
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
               Flagship Hackathon Workspace
             </h1>
-            <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-2xl leading-relaxed">
+            <p className="text-sm sm:text-base text-slate-600 mt-1 max-w-2xl leading-relaxed">
               Form your team of 1 to 6 members, select your specialized domain track and problem
               statement, and benchmark quantum algorithms across Processors A, B, and C before
               proposing custom Processor D.
@@ -270,7 +253,7 @@ export default function HackathonWorkspacePage() {
           {/* Pending Invitations Alert Banner */}
           {pendingInvitations.length > 0 && (
             <div className="mb-8 space-y-3">
-              <h2 className="text-xs font-bold uppercase tracking-wider text-burgundy flex items-center gap-1.5">
+              <h2 className="text-sm font-bold uppercase tracking-wider text-burgundy flex items-center gap-1.5">
                 <Users className="w-4 h-4" />
                 Action Required: Pending Team Invitations ({pendingInvitations.length})
               </h2>
@@ -282,16 +265,16 @@ export default function HackathonWorkspacePage() {
                     className="p-5 bg-white border-2 border-burgundy/40 rounded-xl shadow-xs space-y-3"
                   >
                     <div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-burgundy block">
+                      <span className="text-sm font-bold uppercase tracking-wider text-burgundy block">
                         Team Invitation
                       </span>
                       <h3 className="text-base font-bold text-slate-900">{inv.teamName}</h3>
-                      <p className="text-xs text-slate-600 mt-1">
+                      <p className="text-base text-slate-600 mt-1">
                         Invited by <span className="font-semibold text-slate-800">{inv.leadName}</span> ({inv.leadEmail})
                       </p>
                     </div>
 
-                    <div className="text-xs bg-slate-50 p-2.5 rounded border border-slate-200 text-slate-700 space-y-1">
+                    <div className="text-sm bg-slate-50 p-2.5 rounded border border-slate-200 text-slate-700 space-y-1">
                       <div>
                         <span className="font-bold">Track:</span> {inv.vertical}
                       </div>
@@ -300,7 +283,7 @@ export default function HackathonWorkspacePage() {
                       </div>
                     </div>
 
-                    <p className="text-[11px] text-slate-500 leading-snug">
+                    <p className="text-base text-slate-500 leading-snug">
                       Accepting this invitation confirms you as a full team member and unlocks the
                       dossier for {inv.problemStatementId}. You cannot join other teams once accepted.
                     </p>
@@ -308,13 +291,13 @@ export default function HackathonWorkspacePage() {
                     <div className="flex gap-2 pt-1">
                       <button
                         onClick={() => handleInviteResponse(inv.invitationId, 'accept')}
-                        className="flex-1 px-3 py-1.5 bg-burgundy text-white text-xs font-semibold rounded hover:bg-burgundy-deep transition-colors"
+                        className="flex-1 px-4 py-2 bg-burgundy text-white text-sm font-semibold rounded hover:bg-burgundy-deep transition-colors"
                       >
                         Accept Invitation
                       </button>
                       <button
                         onClick={() => handleInviteResponse(inv.invitationId, 'decline')}
-                        className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded transition-colors"
+                        className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold rounded transition-colors"
                       >
                         Decline
                       </button>
@@ -333,17 +316,17 @@ export default function HackathonWorkspacePage() {
               <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
                   <div>
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-burgundy block mb-1">
+                    <span className="text-sm font-bold uppercase tracking-wider text-burgundy block mb-1">
                       Your Hackathon Team
                     </span>
                     <h2 className="text-2xl font-bold text-slate-900">{team.name}</h2>
-                    <p className="text-xs text-slate-600 mt-1">
+                    <p className="text-base text-slate-600 mt-1">
                       Track: <span className="font-semibold text-slate-800">{team.vertical}</span> · Problem Statement: <span className="font-mono font-bold text-burgundy">{team.problem_statement_id}</span>
                     </p>
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 font-bold text-xs border border-emerald-200 flex items-center gap-1.5">
+                    <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 font-bold text-sm border border-emerald-200 flex items-center gap-1.5">
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                       Team Confirmed ({team.members?.length || 1} Member{team.members?.length !== 1 ? 's' : ''})
                     </span>
@@ -352,35 +335,35 @@ export default function HackathonWorkspacePage() {
 
                 {/* Team Roster */}
                 <div>
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 mb-3">
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-slate-900 mb-3">
                     Team Members Roster (1–6 Members)
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                     {team.members?.map((m: any) => (
                       <div
                         key={m.id}
-                        className="p-3 rounded-lg border border-slate-200 bg-slate-50 text-xs space-y-1"
+                        className="p-3 rounded-lg border border-slate-200 bg-slate-50 text-sm space-y-1"
                       >
                         <div className="flex items-center justify-between">
                           <span className="font-bold text-slate-900 truncate">
                             {m.full_name || m.email.split('@')[0]}
                           </span>
-                          <span className="px-1.5 py-0.2 rounded text-[10px] uppercase font-bold bg-slate-200 text-slate-700">
+                          <span className="px-1.5 py-0.2 rounded text-xs uppercase font-bold bg-slate-200 text-slate-700">
                             {m.role}
                           </span>
                         </div>
                         <span className="text-slate-500 truncate block">{m.email}</span>
                         <div className="pt-1">
                           {m.status === 'accepted' ? (
-                            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-700">
+                            <span className="inline-flex items-center gap-1 text-sm font-medium text-emerald-700">
                               <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Confirmed
                             </span>
                           ) : m.status === 'invited' ? (
-                            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-700">
+                            <span className="inline-flex items-center gap-1 text-sm font-medium text-amber-700">
                               <Clock className="w-3 h-3 text-amber-600" /> Invitation Pending
                             </span>
                           ) : (
-                            <span className="text-[11px] text-slate-400">Declined</span>
+                            <span className="text-sm text-slate-400">Declined</span>
                           )}
                         </div>
                       </div>
@@ -395,21 +378,21 @@ export default function HackathonWorkspacePage() {
                   <Github className="w-5 h-5 text-burgundy" />
                   <h3 className="text-base font-bold">Hackathon Code Submission</h3>
                 </div>
-                <p className="text-xs text-slate-600 leading-relaxed">
+                <p className="text-base text-slate-600 leading-relaxed">
                   Provide your team's public GitHub, GitLab, or Hugging Face Space repository link.
                   Ensure your repository includes `main.ipynb` (or `main.py`), `processors/` with
                   `processor_D.json`, and benchmark plots in `results/`.
                 </p>
 
                 {repoSuccessMsg && (
-                  <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2">
+                  <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                     <span>{repoSuccessMsg}</span>
                   </div>
                 )}
 
                 {repoErrorMsg && (
-                  <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
+                  <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-sm flex items-center gap-2">
                     <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
                     <span>{repoErrorMsg}</span>
                   </div>
@@ -423,12 +406,12 @@ export default function HackathonWorkspacePage() {
                       onChange={(e) => setGithubUrl(e.target.value)}
                       placeholder="https://github.com/organization/qff-2026-solution"
                       required
-                      className="flex-1 px-3 py-2 text-xs border border-slate-300 rounded focus:outline-none focus:ring-1 focus:ring-burgundy focus:border-burgundy"
+                      className="flex-1 px-4 py-2.5 text-sm border border-slate-300 rounded focus:outline-none focus:ring-1 focus:ring-burgundy focus:border-burgundy"
                     />
                     <button
                       type="submit"
                       disabled={isSubmittingRepo}
-                      className="px-4 py-2 bg-slate-900 text-white text-xs font-semibold rounded hover:bg-slate-800 transition-colors shrink-0 disabled:opacity-50 flex items-center justify-center gap-1.5"
+                      className="px-4 py-2 bg-slate-900 text-white text-sm font-semibold rounded hover:bg-slate-800 transition-colors shrink-0 disabled:opacity-50 flex items-center justify-center gap-1.5"
                     >
                       <Send className="w-3.5 h-3.5" />
                       {team.github_repo_url ? 'Update Repository Link' : 'Submit Repository'}
@@ -436,7 +419,7 @@ export default function HackathonWorkspacePage() {
                   </div>
 
                   {team.github_repo_url && (
-                    <div className="p-2.5 rounded bg-slate-50 border border-slate-200 text-xs flex items-center justify-between">
+                    <div className="p-2.5 rounded bg-slate-50 border border-slate-200 text-sm flex items-center justify-between">
                       <span className="text-slate-600">Active submission:</span>
                       <a
                         href={team.github_repo_url}
@@ -459,7 +442,7 @@ export default function HackathonWorkspacePage() {
                     <Shield className="w-4 h-4 text-burgundy" />
                     Unlocked Problem Statement Dossier ({team.problem_statement_id})
                   </h3>
-                  <span className="text-xs text-slate-500">
+                  <span className="text-base text-slate-500">
                     Confidential to Team {team.name}
                   </span>
                 </div>
@@ -467,7 +450,7 @@ export default function HackathonWorkspacePage() {
                 {selectedPSObj ? (
                   <ProblemStatementDossier ps={selectedPSObj} />
                 ) : (
-                  <div className="p-6 bg-white border border-slate-200 rounded-xl text-center text-xs text-slate-600">
+                  <div className="p-6 bg-white border border-slate-200 rounded-xl text-center text-base text-slate-600">
                     Problem statement details could not be found.
                   </div>
                 )}
@@ -483,7 +466,7 @@ export default function HackathonWorkspacePage() {
                     <h2 className="text-lg font-bold text-slate-900">
                       Step 1: Choose Domain Track & Problem Statement
                     </h2>
-                    <p className="text-xs text-slate-600 mt-1">
+                    <p className="text-base text-slate-600 mt-1">
                       Choose from 5 domain verticals. Each vertical contains 3 specialized problem
                       statements and 1 open innovation track. Your team will unlock the full
                       technical dossier for the selected statement upon creation.
@@ -492,13 +475,13 @@ export default function HackathonWorkspacePage() {
 
                   {/* Vertical Selection Dropdown */}
                   <div>
-                    <label className="block text-xs font-semibold text-slate-800 mb-1.5">
+                    <label className="block text-sm font-semibold text-slate-800 mb-1.5">
                       Select Domain Vertical:
                     </label>
                     <select
                       value={selectedVertical}
                       onChange={(e) => handleVerticalChange(e.target.value as VerticalType)}
-                      className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg bg-white font-medium text-slate-900 focus:outline-none focus:ring-1 focus:ring-burgundy focus:border-burgundy"
+                      className="w-full px-4 py-2.5 text-sm border border-slate-300 rounded-lg bg-white font-medium text-slate-900 focus:outline-none focus:ring-1 focus:ring-burgundy focus:border-burgundy"
                     >
                       {VERTICALS.map((v) => (
                         <option key={v} value={v}>
@@ -510,7 +493,7 @@ export default function HackathonWorkspacePage() {
 
                   {/* Problem Statement Radio/Card Selection */}
                   <div>
-                    <label className="block text-xs font-semibold text-slate-800 mb-2">
+                    <label className="block text-sm font-semibold text-slate-800 mb-2">
                       Choose Problem Statement in {selectedVertical}:
                     </label>
                     <div className="space-y-2">
@@ -519,7 +502,7 @@ export default function HackathonWorkspacePage() {
                         return (
                           <label
                             key={ps.id}
-                            className={`flex items-start gap-3 p-3.5 rounded-lg border text-xs cursor-pointer transition-all ${
+                            className={`flex items-start gap-3 p-3.5 rounded-lg border text-sm cursor-pointer transition-all ${
                               isSelected
                                 ? 'bg-burgundy/5 border-burgundy ring-1 ring-burgundy text-slate-900'
                                 : 'bg-slate-50/50 border-slate-200 text-slate-700 hover:bg-slate-100/60'
@@ -535,12 +518,12 @@ export default function HackathonWorkspacePage() {
                             />
                             <div className="space-y-0.5">
                               <div className="flex items-center gap-2">
-                                <span className="font-bold text-slate-900 font-mono text-[11px] bg-slate-200 px-1.5 py-0.2 rounded">
+                                <span className="font-bold text-slate-900 font-mono text-sm bg-slate-200 px-1.5 py-0.2 rounded">
                                   {ps.id}
                                 </span>
                                 <span className="font-semibold">{ps.title.split(': ')[1] || ps.title}</span>
                               </div>
-                              <p className="text-slate-500 text-[11px] leading-relaxed">
+                              <p className="text-slate-500 text-sm leading-relaxed">
                                 {ps.subtitle}
                               </p>
                             </div>
@@ -556,7 +539,7 @@ export default function HackathonWorkspacePage() {
                       <h2 className="text-lg font-bold text-slate-900">
                         Step 2: Team Name & Members (1–6 Members)
                       </h2>
-                      <p className="text-xs text-slate-600 mt-1">
+                      <p className="text-base text-slate-600 mt-1">
                         Team names must be globally unique. You are the team leader. Add up to 5
                         additional members. Teammate Gmails are authenticated in real time against the
                         platform whitelist.
@@ -564,14 +547,14 @@ export default function HackathonWorkspacePage() {
                     </div>
 
                     {teamFormError && (
-                      <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
+                      <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-sm flex items-center gap-2">
                         <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
                         <span>{teamFormError}</span>
                       </div>
                     )}
 
                     <div>
-                      <label className="block text-xs font-semibold text-slate-800 mb-1">
+                      <label className="block text-sm font-semibold text-slate-800 mb-1">
                         Team Name:
                       </label>
                       <input
@@ -580,17 +563,17 @@ export default function HackathonWorkspacePage() {
                         onChange={(e) => setTeamName(e.target.value)}
                         placeholder="e.g. Quantum Singularity Labs"
                         required
-                        className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-burgundy focus:border-burgundy"
+                        className="w-full px-4 py-2.5 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-burgundy focus:border-burgundy"
                       />
                     </div>
 
                     {/* Team Leader Badge */}
-                    <div className="p-3.5 rounded-lg border border-slate-200 bg-slate-50 text-xs space-y-1">
+                    <div className="p-3.5 rounded-lg border border-slate-200 bg-slate-50 text-sm space-y-1">
                       <div className="flex items-center justify-between">
                         <span className="font-bold text-slate-900">
                           Team Leader: {sessionUser?.fullName || 'You'}
                         </span>
-                        <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-burgundy/10 text-burgundy uppercase">
+                        <span className="px-1.5 py-0.5 rounded text-sm font-bold bg-burgundy/10 text-burgundy uppercase">
                           Leader (Confirmed)
                         </span>
                       </div>
@@ -600,30 +583,36 @@ export default function HackathonWorkspacePage() {
                     {/* Additional Teammates */}
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-semibold text-slate-800">
+                        <span className="text-sm font-semibold text-slate-800">
                           Additional Teammates ({teammates.length}/5)
                         </span>
-                        {teammates.length < 5 && (
-                          <button
-                            type="button"
-                            onClick={handleAddTeammate}
-                            className="text-xs font-semibold text-burgundy hover:underline flex items-center gap-1"
-                          >
-                            <Plus className="w-3.5 h-3.5" />
-                            Add Teammate
-                          </button>
-                        )}
+                        {/* Global add button removed to favor inline buttons */}
                       </div>
 
-                      {teammates.map((m, idx) => (
-                        <TeammateInput
-                          key={idx}
-                          index={idx}
-                          member={m}
-                          onChange={handleTeammateChange}
-                          onRemove={handleRemoveTeammate}
-                        />
-                      ))}
+                      {teammates.map((m, idx) => {
+                        const isLast = idx === teammates.length - 1;
+                        return (
+                          <TeammateInput
+                            key={idx}
+                            index={idx}
+                            member={m}
+                            onChange={handleTeammateChange}
+                            onRemove={handleRemoveTeammate}
+                            onAdd={handleAddTeammate}
+                            canAdd={isLast && teammates.length < 5}
+                          />
+                        );
+                      })}
+                      {teammates.length === 0 && (
+                        <button
+                          type="button"
+                          onClick={handleAddTeammate}
+                          className="w-full p-3 border border-dashed border-slate-300 rounded-lg text-slate-500 hover:text-burgundy hover:border-burgundy hover:bg-burgundy/5 transition-colors text-sm font-semibold flex items-center justify-center gap-1.5"
+                        >
+                          <Plus className="w-4 h-4" />
+                          Add First Teammate
+                        </button>
+                      )}
                     </div>
 
                     {/* Submit Button */}
@@ -631,7 +620,7 @@ export default function HackathonWorkspacePage() {
                       type="button"
                       onClick={handleCreateTeam}
                       disabled={isSubmittingTeam}
-                      className="w-full px-4 py-2.5 bg-burgundy text-white text-xs font-bold rounded-lg hover:bg-burgundy-deep transition-colors shadow-xs disabled:opacity-50 flex items-center justify-center gap-2 mt-4"
+                      className="w-full px-4 py-2.5 bg-burgundy text-white text-sm font-bold rounded-lg hover:bg-burgundy-deep transition-colors shadow-xs disabled:opacity-50 flex items-center justify-center gap-2 mt-4"
                     >
                       {isSubmittingTeam ? (
                         'Creating Team & Sending Invitations...'
@@ -648,8 +637,8 @@ export default function HackathonWorkspacePage() {
 
               {/* Right 1 Col: Challenge Framework Preview */}
               <div className="space-y-6">
-                <div className="p-5 bg-white border border-slate-200 rounded-xl shadow-xs space-y-4 text-xs text-slate-700">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 flex items-center gap-1.5">
+                <div className="p-5 bg-white border border-slate-200 rounded-xl shadow-xs space-y-4 text-sm text-slate-700">
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-slate-900 flex items-center gap-1.5">
                     <Shield className="w-4 h-4 text-burgundy" />
                     Challenge Framework Rules
                   </h3>
@@ -672,7 +661,7 @@ export default function HackathonWorkspacePage() {
                     </p>
                   </div>
 
-                  <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 space-y-1 text-[11px]">
+                  <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 space-y-1 text-sm">
                     <span className="font-bold text-slate-900 block">Deliverables Required:</span>
                     <span>1. Executable Jupyter notebook (`main.ipynb`)</span>
                     <span>2. `processors/` with `processor_D.json`</span>
@@ -683,7 +672,6 @@ export default function HackathonWorkspacePage() {
             </div>
           )}
         </div>
-      </div>
     </AuthGate>
   );
 }
