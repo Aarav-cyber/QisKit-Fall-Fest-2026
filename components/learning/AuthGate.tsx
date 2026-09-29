@@ -2,7 +2,16 @@
 
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Shield, Lock, ArrowRight, UserCheck, LogOut, CheckCircle, AlertCircle } from 'lucide-react';
+import {
+  Shield,
+  Lock,
+  ArrowRight,
+  LogOut,
+  CheckCircle,
+  AlertCircle,
+  X,
+  ExternalLink,
+} from 'lucide-react';
 
 interface AuthSession {
   email: string;
@@ -16,6 +25,9 @@ interface AuthGateProps {
   onSessionChange?: (session: AuthSession | null) => void;
 }
 
+const UNSTOP_REGISTRATION_URL =
+  'https://unstop.com/college-fests/qiskit-fall-fest-srmap-2026-srm-university-amaravati-515345';
+
 export function AuthGate({ children, onSessionChange }: AuthGateProps) {
   const [session, setSession] = useState<AuthSession | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -23,6 +35,7 @@ export function AuthGate({ children, onSessionChange }: AuthGateProps) {
   const [inputName, setInputName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [showToast, setShowToast] = useState(false);
 
   // 1. Check existing session on mount
   useEffect(() => {
@@ -61,6 +74,14 @@ export function AuthGate({ children, onSessionChange }: AuthGateProps) {
         if (verifyData.success) {
           setSession(verifyData.session);
           onSessionChange?.(verifyData.session);
+        } else {
+          // User is not whitelisted / not eligible
+          await supabase.auth.signOut();
+          setShowToast(true);
+          setErrorMessage(
+            verifyData.error ||
+              'You are not eligible participant. Please register in Unstop and check back after October 7, 11:59 PM.'
+          );
         }
       }
     } catch (err) {
@@ -73,6 +94,7 @@ export function AuthGate({ children, onSessionChange }: AuthGateProps) {
   // 2. Google OAuth sign-in handler
   async function handleGoogleSignIn() {
     setErrorMessage('');
+    setShowToast(false);
     try {
       setIsSubmitting(true);
       const redirectUrl =
@@ -93,9 +115,11 @@ export function AuthGate({ children, onSessionChange }: AuthGateProps) {
 
       if (error) {
         setErrorMessage(error.message);
+        setShowToast(true);
       }
     } catch (err: any) {
       setErrorMessage(err?.message || 'Google sign-in failed');
+      setShowToast(true);
     } finally {
       setIsSubmitting(false);
     }
@@ -105,10 +129,12 @@ export function AuthGate({ children, onSessionChange }: AuthGateProps) {
   async function handleDirectEmailSignIn(e: React.FormEvent) {
     e.preventDefault();
     setErrorMessage('');
+    setShowToast(false);
 
     const cleanEmail = inputEmail.trim().toLowerCase();
     if (!cleanEmail || !cleanEmail.includes('@')) {
       setErrorMessage('Please enter a valid Gmail address.');
+      setShowToast(true);
       return;
     }
 
@@ -125,9 +151,10 @@ export function AuthGate({ children, onSessionChange }: AuthGateProps) {
 
       const data = await res.json();
       if (!res.ok || !data.success) {
+        setShowToast(true);
         setErrorMessage(
           data.error ||
-            'This Gmail is not authorized yet. Please contact the organizers or verify with your registered email.'
+            'You are not eligible participant. Please register in Unstop and check back after October 7, 11:59 PM.'
         );
         return;
       }
@@ -136,6 +163,7 @@ export function AuthGate({ children, onSessionChange }: AuthGateProps) {
       onSessionChange?.(data.session);
     } catch (err: any) {
       setErrorMessage(err?.message || 'Failed to authenticate email.');
+      setShowToast(true);
     } finally {
       setIsSubmitting(false);
     }
@@ -190,7 +218,7 @@ export function AuthGate({ children, onSessionChange }: AuthGateProps) {
             )}
             <button
               onClick={handleSignOut}
-              className="text-slate-500 hover:text-slate-800 flex items-center gap-1 transition-colors"
+              className="text-slate-500 hover:text-slate-800 flex items-center gap-1 transition-colors cursor-pointer"
             >
               <LogOut className="w-3.5 h-3.5" />
               Sign Out
@@ -202,9 +230,45 @@ export function AuthGate({ children, onSessionChange }: AuthGateProps) {
     );
   }
 
-  // If not authenticated, render login gate
+  // If not authenticated, render login gate + Toast
   return (
-    <div className="min-h-[70vh] flex items-center justify-center p-4">
+    <div className="min-h-[70vh] flex items-center justify-center p-4 relative">
+      {/* Toast Notification for Ineligible Participants */}
+      {showToast && (
+        <div className="fixed top-5 right-5 sm:right-6 z-50 max-w-md w-[calc(100%-2.5rem)] bg-white border-2 border-rose-300 rounded-xl shadow-xl p-4 transition-all">
+          <div className="flex items-start gap-3">
+            <div className="w-8 h-8 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center shrink-0 mt-0.5">
+              <AlertCircle className="w-5 h-5" />
+            </div>
+            <div className="flex-1 text-xs">
+              <div className="flex items-center justify-between gap-2">
+                <h4 className="font-bold text-slate-900 text-sm">Access Restricted</h4>
+                <button
+                  onClick={() => setShowToast(false)}
+                  className="text-slate-400 hover:text-slate-700 p-1 rounded-md"
+                  aria-label="Dismiss toast"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <p className="text-slate-700 mt-1 leading-relaxed">
+                You are not eligible participant. Please register in{' '}
+                <a
+                  href={UNSTOP_REGISTRATION_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-bold text-burgundy underline inline-flex items-center gap-1 hover:text-burgundy-deep"
+                >
+                  Unstop
+                  <ExternalLink className="w-3 h-3 inline" />
+                </a>{' '}
+                and check back after <strong>October 7, 11:59 PM</strong>.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="w-full max-w-md bg-white border border-slate-200 rounded-xl shadow-sm p-6 sm:p-8">
         <div className="text-center mb-6">
           <div className="w-12 h-12 rounded-full bg-burgundy/10 text-burgundy flex items-center justify-center mx-auto mb-3">
@@ -219,9 +283,21 @@ export function AuthGate({ children, onSessionChange }: AuthGateProps) {
         </div>
 
         {errorMessage && (
-          <div className="mb-5 p-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-start gap-2">
-            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-amber-600" />
-            <span>{errorMessage}</span>
+          <div className="mb-5 p-3.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-900 text-xs flex items-start gap-2.5">
+            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-600" />
+            <div className="leading-relaxed">
+              <span>You are not eligible participant. Please register in </span>
+              <a
+                href={UNSTOP_REGISTRATION_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-bold text-burgundy underline inline-flex items-center gap-1 hover:text-burgundy-deep"
+              >
+                Unstop
+                <ExternalLink className="w-3 h-3 inline" />
+              </a>
+              <span> and check back after <strong>October 7, 11:59 PM</strong>.</span>
+            </div>
           </div>
         )}
 
@@ -230,7 +306,7 @@ export function AuthGate({ children, onSessionChange }: AuthGateProps) {
           type="button"
           onClick={handleGoogleSignIn}
           disabled={isSubmitting}
-          className="w-full flex items-center justify-center gap-3 px-4 py-2.5 border border-slate-300 rounded-lg text-sm font-medium text-slate-800 hover:bg-slate-50 transition-colors shadow-sm disabled:opacity-50"
+          className="w-full flex items-center justify-center gap-3 px-4 py-2.5 border border-slate-300 rounded-lg text-sm font-medium text-slate-800 hover:bg-slate-50 transition-colors shadow-sm disabled:opacity-50 cursor-pointer"
         >
           <svg className="w-4 h-4" viewBox="0 0 24 24">
             <path
@@ -294,7 +370,7 @@ export function AuthGate({ children, onSessionChange }: AuthGateProps) {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-burgundy text-white text-sm font-semibold rounded-lg hover:bg-burgundy-deep transition-colors shadow-sm disabled:opacity-50"
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-burgundy text-white text-sm font-semibold rounded-lg hover:bg-burgundy-deep transition-colors shadow-sm disabled:opacity-50 cursor-pointer"
           >
             {isSubmitting ? (
               <span className="flex items-center gap-2">

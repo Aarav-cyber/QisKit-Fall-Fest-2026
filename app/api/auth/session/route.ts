@@ -60,7 +60,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error:
-            'This Gmail address is not authorized for the learning phase yet. If you registered via Unstop, your access will be activated once registrations close.',
+            'You are not eligible participant. Please register in Unstop and check back after October 7, 11:59 PM.',
+          registrationUrl:
+            'https://unstop.com/college-fests/qiskit-fall-fest-srmap-2026-srm-university-amaravati-515345',
         },
         { status: 403 }
       );
