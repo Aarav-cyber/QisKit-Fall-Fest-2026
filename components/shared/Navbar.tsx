@@ -64,15 +64,8 @@ export function Navbar() {
           
           // Auto-hide logic for /learning routes
           if (pathname?.startsWith('/learning')) {
-            const currentScrollY = window.scrollY;
-            if (currentScrollY > lastScrollY.current && currentScrollY > 80) {
-              // Scrolling down
-              setIsNavbarVisible(false);
-            } else {
-              // Scrolling up
-              setIsNavbarVisible(true);
-            }
-            lastScrollY.current = currentScrollY;
+            // Visibility is strictly controlled by mouse hover (handleMouseMove)
+            lastScrollY.current = window.scrollY;
           } else {
             // Always visible on non-learning routes
             setIsNavbarVisible(true);
@@ -83,9 +76,9 @@ export function Navbar() {
 
     const handleMouseMove = (e: MouseEvent) => {
       if (pathname?.startsWith('/learning')) {
-        if (e.clientY < 60) {
+        if (e.clientY <= 80) {
           setIsNavbarVisible(true);
-        } else if (window.scrollY > 80) {
+        } else {
           setIsNavbarVisible(false);
         }
       }
