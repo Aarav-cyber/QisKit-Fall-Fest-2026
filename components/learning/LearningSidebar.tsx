@@ -57,21 +57,21 @@ export function LearningSidebar() {
       {/* Header section */}
       <div className="p-6 border-b border-slate-100 bg-white sticky top-0 z-10">
         <div className="flex items-center gap-2 mb-2">
-          <span className="px-2 py-0.5 rounded bg-burgundy/10 text-burgundy font-bold text-[10px] uppercase tracking-wider">
+          <span className="px-2 py-0.5 rounded bg-burgundy/10 text-burgundy font-bold text-xs uppercase tracking-wider">
             Curriculum
           </span>
         </div>
         <h2 className="text-xl font-bold text-slate-900 tracking-tight">
           Masterclass 2026
         </h2>
-        <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+        <p className="text-base text-slate-500 mt-1 leading-relaxed">
           Complete the sessions sequentially to earn your certificate.
         </p>
       </div>
 
       {/* Nav items */}
       <nav className="flex-1 overflow-y-auto p-4 space-y-1">
-        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-3 pb-2">
+        <div className="text-sm font-bold text-slate-400 uppercase tracking-wider px-3 pb-2">
           Learning Phase
         </div>
         
@@ -112,7 +112,7 @@ export function LearningSidebar() {
                         key={session.id}
                         href={`/learning?session=${session.id}`}
                         className={clsx(
-                          'flex items-center gap-2.5 px-3 py-2 rounded-md text-xs transition-colors',
+                          'flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors',
                           isActive
                             ? 'bg-burgundy/10 text-burgundy font-semibold'
                             : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 font-medium'
@@ -129,7 +129,7 @@ export function LearningSidebar() {
                     <Link
                       href={`/learning?challenge=${day.id}`}
                       className={clsx(
-                        'flex items-center gap-2.5 px-3 py-2 mt-1 rounded-md text-xs transition-colors',
+                        'flex items-center gap-2.5 px-3 py-2 mt-1 rounded-md text-sm transition-colors',
                         activeChallengeDay === String(day.id)
                           ? 'bg-burgundy/10 text-burgundy font-semibold'
                           : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 font-medium'
@@ -145,7 +145,7 @@ export function LearningSidebar() {
           );
         })}
 
-        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-3 pb-2 pt-6">
+        <div className="text-sm font-bold text-slate-400 uppercase tracking-wider px-3 pb-2 pt-6">
           Hackathon Phase
         </div>
 
@@ -171,17 +171,17 @@ export function LearningSidebar() {
         <div className="p-4 border-t border-slate-100 bg-slate-50 mt-auto">
           <div className="flex flex-col gap-2">
             <div className="flex flex-col">
-              <span className="font-semibold text-xs text-slate-800 line-clamp-1">
+              <span className="font-semibold text-sm text-slate-800 line-clamp-1">
                 {session.fullName || session.email}
               </span>
-              <span className="text-[10px] text-slate-500 line-clamp-1">{session.email}</span>
+              <span className="text-base text-slate-500 line-clamp-1">{session.email}</span>
             </div>
             
             <div className="flex items-center gap-2 mt-2 pt-2 border-t border-slate-200/60">
               {session.isAdmin && (
                 <Link
                   href="/learning/admin"
-                  className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded bg-burgundy/10 text-burgundy hover:bg-burgundy/20 transition-colors text-[10px] font-bold tracking-wider"
+                  className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded bg-burgundy/10 text-burgundy hover:bg-burgundy/20 transition-colors text-sm font-bold tracking-wider"
                 >
                   <Shield className="w-3 h-3" />
                   Admin
@@ -189,7 +189,7 @@ export function LearningSidebar() {
               )}
               <button
                 onClick={handleSignOut}
-                className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded border border-slate-200 text-slate-600 hover:bg-slate-200 transition-colors text-[10px] font-bold tracking-wider cursor-pointer"
+                className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded border border-slate-200 text-slate-600 hover:bg-slate-200 transition-colors text-sm font-bold tracking-wider cursor-pointer"
               >
                 <LogOut className="w-3 h-3" />
                 Sign Out

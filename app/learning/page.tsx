@@ -125,12 +125,12 @@ function LearningDashboardContent() {
                 </p>
                 <div className="flex items-center gap-4 pt-2">
                   {session.speaker.websiteUrl && (
-                    <a href={session.speaker.websiteUrl} target="_blank" rel="noopener noreferrer" className="text-xs font-semibold text-slate-600 hover:text-burgundy flex items-center gap-1">
+                    <a href={session.speaker.websiteUrl} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-slate-600 hover:text-burgundy flex items-center gap-1">
                       <ExternalLink className="w-3.5 h-3.5" /> Website
                     </a>
                   )}
                   {session.speaker.profileUrl && (
-                    <a href={session.speaker.profileUrl} target="_blank" rel="noopener noreferrer" className="text-xs font-semibold text-slate-600 hover:text-burgundy flex items-center gap-1">
+                    <a href={session.speaker.profileUrl} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-slate-600 hover:text-burgundy flex items-center gap-1">
                       <ExternalLink className="w-3.5 h-3.5" /> LinkedIn
                     </a>
                   )}
@@ -181,7 +181,7 @@ function LearningDashboardContent() {
               ))}
             </ul>
             <div className="mt-4 pt-4 border-t border-slate-200">
-              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Deadline</span>
+              <span className="text-sm font-bold text-slate-500 uppercase tracking-wider">Deadline</span>
               <p className="text-sm font-semibold text-slate-900">{challenge.submissionDeadline}</p>
             </div>
           </div>
