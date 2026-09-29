@@ -41,7 +41,7 @@ export function CampusAtlasSection() {
       id="interactive-atlas"
       aria-label="Campus Atlas & Venues"
       className="
-        relative isolate w-full
+        relative w-full
         bg-[#F7F5F0] dark:bg-[#120709]
         py-8 sm:py-12 lg:py-16
         transition-colors duration-300
