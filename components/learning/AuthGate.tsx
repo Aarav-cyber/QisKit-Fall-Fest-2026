@@ -97,10 +97,13 @@ export function AuthGate({ children, onSessionChange }: AuthGateProps) {
     setShowToast(false);
     try {
       setIsSubmitting(true);
-      const redirectUrl =
-        typeof window !== 'undefined'
-          ? `${window.location.origin}/learning`
-          : undefined;
+      // Prefer the env-configured site URL so production builds always redirect
+      // to the real domain, not localhost. Falls back to window.location.origin
+      // for local development when NEXT_PUBLIC_SITE_URL is not set.
+      const siteUrl =
+        process.env.NEXT_PUBLIC_SITE_URL ||
+        (typeof window !== 'undefined' ? window.location.origin : '');
+      const redirectUrl = `${siteUrl}/learning`;
 
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
