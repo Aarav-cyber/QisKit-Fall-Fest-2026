@@ -262,12 +262,27 @@ function LearningDashboardContent() {
                 </h2>
               </div>
               <div className="mb-4">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-burgundy block mb-1">
+                  {currentDailyComp.subtitle}
+                </span>
                 <h3 className="text-lg font-bold text-slate-900 leading-snug mb-2">
                   {currentDailyComp.title}
                 </h3>
                 <p className="text-xs text-slate-600 leading-relaxed">
                   {currentDailyComp.description}
                 </p>
+              </div>
+              <div className="space-y-1.5 text-xs text-slate-700 bg-slate-50 p-3 rounded-lg border border-slate-200/80">
+                <span className="font-bold text-slate-900 block mb-1">Guidelines:</span>
+                {currentDailyComp.guidelines.map((guideline) => (
+                  <p key={guideline} className="flex items-start gap-1.5">
+                    <span className="text-burgundy font-bold">•</span>
+                    <span>{guideline}</span>
+                  </p>
+                ))}
+              </div>
+              <div className="mt-3 text-[11px] text-slate-500 font-medium">
+                Deadline: <span className="text-slate-800 font-semibold">{currentDailyComp.submissionDeadline}</span>
               </div>
 
               <form
