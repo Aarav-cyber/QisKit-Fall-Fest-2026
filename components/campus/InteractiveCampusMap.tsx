@@ -65,7 +65,7 @@ export const GATE3_ROUTES: Record<
   },
   'food-court': {
     // Dual routes: (1) via pedestrian walkway between X-Lab & JC Bose, (2) via Vedavathi & front of S.R. Block
-    path: 'M 740 310 L 515 310 L 515 445 L 560 480 M 740 310 L 340 310 L 340 445 L 560 480',
+    path: 'M 740 310 L 515 310 L 515 445 L 560 445 L 560 480 M 740 310 L 340 310 L 340 445 L 560 445 L 560 480',
     destPoint: { x: 560, y: 480 },
     note: 'Dual access: via Central Plaza walkway OR via Vedavathi & S.R. Block front',
   },
