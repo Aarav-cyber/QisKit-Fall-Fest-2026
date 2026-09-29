@@ -8,7 +8,7 @@ export default function LearningLayout({ children }: { children: React.ReactNode
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar */}
           <div className="w-full lg:w-72 shrink-0">
-            <LearningSidebar />
+            <React.Suspense fallback={null}><LearningSidebar /></React.Suspense>
           </div>
 
           {/* Main Content Area */}
