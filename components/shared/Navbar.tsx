@@ -38,6 +38,9 @@ export function Navbar() {
   const headerRef = React.useRef<HTMLElement>(null);
   const progressBarRef = React.useRef<HTMLDivElement>(null);
 
+  const [isNavbarVisible, setIsNavbarVisible] = React.useState(true);
+  const lastScrollY = React.useRef(0);
+
   const activeTheme = resolvedTheme || theme;
 
   // Scroll-progress line handler (uses RAF and direct transform scaleX, no React re-renders)
@@ -56,7 +59,25 @@ export function Navbar() {
     const handleScroll = () => {
       if (!ticking) {
         ticking = true;
-        requestAnimationFrame(updateScrollProgress);
+        requestAnimationFrame(() => {
+          updateScrollProgress();
+          
+          // Auto-hide logic for /learning routes
+          if (pathname?.startsWith('/learning')) {
+            const currentScrollY = window.scrollY;
+            if (currentScrollY > lastScrollY.current && currentScrollY > 80) {
+              // Scrolling down
+              setIsNavbarVisible(false);
+            } else {
+              // Scrolling up
+              setIsNavbarVisible(true);
+            }
+            lastScrollY.current = currentScrollY;
+          } else {
+            // Always visible on non-learning routes
+            setIsNavbarVisible(true);
+          }
+        });
       }
     };
 
@@ -106,7 +127,10 @@ export function Navbar() {
   return (
     <header 
       ref={headerRef}
-      className="sticky top-0 z-50 w-full border-b border-[var(--nav-border)]/60 bg-[#F5F3F0]/85 dark:bg-[linear-gradient(105deg,rgba(22,6,8,0.85)_0%,rgba(36,9,12,0.85)_42%,rgba(58,11,16,0.85)_72%,rgba(36,9,12,0.85)_100%)] backdrop-blur-xl text-[var(--nav-text)] transition-colors duration-300 shadow-[0_4px_24px_rgba(0,0,0,0.03)] dark:shadow-[0_4px_30px_rgba(0,0,0,0.28)]"
+      className={clsx(
+        "sticky top-0 z-50 w-full border-b border-[var(--nav-border)]/60 bg-[#F5F3F0]/85 dark:bg-[linear-gradient(105deg,rgba(22,6,8,0.85)_0%,rgba(36,9,12,0.85)_42%,rgba(58,11,16,0.85)_72%,rgba(36,9,12,0.85)_100%)] backdrop-blur-xl text-[var(--nav-text)] transition-transform duration-300 shadow-[0_4px_24px_rgba(0,0,0,0.03)] dark:shadow-[0_4px_30px_rgba(0,0,0,0.28)]",
+        !isNavbarVisible && "-translate-y-full"
+      )}
       style={{
         backdropFilter: 'blur(20px) saturate(180%)',
         WebkitBackdropFilter: 'blur(20px) saturate(180%)',

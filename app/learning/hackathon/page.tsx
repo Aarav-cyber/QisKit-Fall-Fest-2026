@@ -228,25 +228,8 @@ export default function HackathonWorkspacePage() {
 
   return (
     <AuthGate onSessionChange={setSessionUser}>
-      <div className="min-h-screen bg-slate-50/60 pb-16">
-        {/* Navigation Breadcrumb Bar */}
-        <div className="bg-white border-b border-slate-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between">
-            <Link
-              href="/learning"
-              className="text-xs font-semibold text-slate-600 hover:text-slate-900 flex items-center gap-1.5 transition-colors"
-            >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              Back to Curriculum Hub
-            </Link>
+      <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
 
-            <span className="px-2.5 py-0.5 rounded bg-burgundy/10 text-burgundy font-bold text-xs uppercase tracking-wider">
-              Flagship Hackathon Workspace
-            </span>
-          </div>
-        </div>
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
           {/* Header */}
           <div className="mb-8">
             <div className="flex items-center gap-2 mb-1.5">
@@ -603,27 +586,33 @@ export default function HackathonWorkspacePage() {
                         <span className="text-xs font-semibold text-slate-800">
                           Additional Teammates ({teammates.length}/5)
                         </span>
-                        {teammates.length < 5 && (
-                          <button
-                            type="button"
-                            onClick={handleAddTeammate}
-                            className="text-xs font-semibold text-burgundy hover:underline flex items-center gap-1"
-                          >
-                            <Plus className="w-3.5 h-3.5" />
-                            Add Teammate
-                          </button>
-                        )}
+                        {/* Global add button removed to favor inline buttons */}
                       </div>
 
-                      {teammates.map((m, idx) => (
-                        <TeammateInput
-                          key={idx}
-                          index={idx}
-                          member={m}
-                          onChange={handleTeammateChange}
-                          onRemove={handleRemoveTeammate}
-                        />
-                      ))}
+                      {teammates.map((m, idx) => {
+                        const isLast = idx === teammates.length - 1;
+                        return (
+                          <TeammateInput
+                            key={idx}
+                            index={idx}
+                            member={m}
+                            onChange={handleTeammateChange}
+                            onRemove={handleRemoveTeammate}
+                            onAdd={handleAddTeammate}
+                            canAdd={isLast && teammates.length < 5}
+                          />
+                        );
+                      })}
+                      {teammates.length === 0 && (
+                        <button
+                          type="button"
+                          onClick={handleAddTeammate}
+                          className="w-full p-3 border border-dashed border-slate-300 rounded-lg text-slate-500 hover:text-burgundy hover:border-burgundy hover:bg-burgundy/5 transition-colors text-xs font-semibold flex items-center justify-center gap-1.5"
+                        >
+                          <Plus className="w-4 h-4" />
+                          Add First Teammate
+                        </button>
+                      )}
                     </div>
 
                     {/* Submit Button */}
@@ -683,7 +672,6 @@ export default function HackathonWorkspacePage() {
             </div>
           )}
         </div>
-      </div>
     </AuthGate>
   );
 }
