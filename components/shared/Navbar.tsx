@@ -81,19 +81,36 @@ export function Navbar() {
       }
     };
 
+    const handleMouseMove = (e: MouseEvent) => {
+      if (pathname?.startsWith('/learning')) {
+        if (e.clientY < 60) {
+          setIsNavbarVisible(true);
+        } else if (window.scrollY > 80) {
+          setIsNavbarVisible(false);
+        }
+      }
+    };
+
     const handleResize = () => {
       handleScroll();
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('resize', handleResize, { passive: true });
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
 
     // Initial update
     updateScrollProgress();
 
+    // Hide navbar initially on learning routes
+    if (pathname?.startsWith('/learning')) {
+      setIsNavbarVisible(false);
+    }
+
     return () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleResize);
+      window.removeEventListener('mousemove', handleMouseMove);
     };
   }, [pathname]);
 
@@ -124,16 +141,14 @@ export function Navbar() {
     };
   }, [mobileMenuOpen]);
 
-  // Hide Navbar completely on learning routes as per full-screen UI requirement
-  if (pathname?.startsWith('/learning')) {
-    return null;
-  }
+  // (Removed completely hiding logic to allow hover reveal)
 
   return (
     <header 
       ref={headerRef}
       className={clsx(
-        "sticky top-0 z-50 w-full border-b border-[var(--nav-border)]/60 bg-[#F5F3F0]/85 dark:bg-[linear-gradient(105deg,rgba(22,6,8,0.85)_0%,rgba(36,9,12,0.85)_42%,rgba(58,11,16,0.85)_72%,rgba(36,9,12,0.85)_100%)] backdrop-blur-xl text-[var(--nav-text)] transition-transform duration-300 shadow-[0_4px_24px_rgba(0,0,0,0.03)] dark:shadow-[0_4px_30px_rgba(0,0,0,0.28)]",
+        pathname?.startsWith('/learning') ? "fixed" : "sticky",
+        "top-0 z-[60] w-full border-b border-[var(--nav-border)]/60 bg-[#F5F3F0]/85 dark:bg-[linear-gradient(105deg,rgba(22,6,8,0.85)_0%,rgba(36,9,12,0.85)_42%,rgba(58,11,16,0.85)_72%,rgba(36,9,12,0.85)_100%)] backdrop-blur-xl text-[var(--nav-text)] transition-transform duration-300 shadow-[0_4px_24px_rgba(0,0,0,0.03)] dark:shadow-[0_4px_30px_rgba(0,0,0,0.28)]",
         !isNavbarVisible && "-translate-y-full"
       )}
       style={{
