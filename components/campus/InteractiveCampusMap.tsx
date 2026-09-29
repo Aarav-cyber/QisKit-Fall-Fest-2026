@@ -8,6 +8,7 @@ import {
   ZoomOut,
   RotateCcw,
   Maximize2,
+  Minimize2,
   MapPin,
   Navigation,
   ArrowRight,
@@ -36,51 +37,67 @@ export const GATE3_ROUTES: Record<
   {
     path: string;
     destPoint: { x: number; y: number };
+    note?: string;
   }
 > = {
   'x-lab': {
-    path: 'M 740 310 L 437 310 L 437 335',
-    destPoint: { x: 437, y: 335 },
+    // Gate 3 -> past central axis to Vedavathi front -> turn south along western avenue -> inward curved entrance
+    path: 'M 740 310 L 340 310 L 340 387.5 L 404 387.5',
+    destPoint: { x: 404, y: 387.5 },
+    note: 'Turn at Vedavathi front, enter through inward curved entrance with 3 indents',
   },
   'jc-bose': {
+    // Gate 3 -> JC Bose north facade
     path: 'M 740 310 L 585 310 L 585 335',
     destPoint: { x: 585, y: 335 },
   },
   'v-block': {
-    path: 'M 740 310 L 430 310 L 430 285',
-    destPoint: { x: 430, y: 285 },
+    // Gate 3 -> central courtyard between V-Block & Homi Bhabha
+    path: 'M 740 310 L 505 310 L 505 255',
+    destPoint: { x: 505, y: 255 },
+    note: 'Enter through central plaza between V-Block & Homi Bhabha',
   },
   'homi-bhabha': {
-    path: 'M 740 310 L 580 310 L 580 285',
-    destPoint: { x: 580, y: 285 },
+    // Gate 3 -> central courtyard between V-Block & Homi Bhabha
+    path: 'M 740 310 L 505 310 L 505 255',
+    destPoint: { x: 505, y: 255 },
+    note: 'Enter through central plaza between V-Block & Homi Bhabha',
   },
   'food-court': {
-    path: 'M 740 310 L 625 310 L 625 465',
-    destPoint: { x: 625, y: 465 },
+    // Dual routes: (1) via pedestrian walkway between X-Lab & JC Bose, (2) via Vedavathi & front of S.R. Block
+    path: 'M 740 310 L 515 310 L 515 445 L 560 480 M 740 310 L 340 310 L 340 445 L 560 480',
+    destPoint: { x: 560, y: 480 },
+    note: 'Dual access: via Central Plaza walkway OR via Vedavathi & S.R. Block front',
   },
   'sr-block': {
-    path: 'M 740 310 L 340 310 L 340 410 L 280 410',
-    destPoint: { x: 280, y: 410 },
+    // Gate 3 -> main road to Vedavathi front -> head south past Ganga -> turn right from Ganga into top width entry of S.R. Block
+    path: 'M 740 310 L 340 310 L 340 409 L 280 409 L 280 425',
+    destPoint: { x: 280, y: 425 },
+    note: 'Turn right from Ganga into top width entrance of S.R. Block',
   },
   'c-block': {
     path: 'M 740 310 L 340 310 L 340 590 L 160 590 L 160 610',
     destPoint: { x: 160, y: 610 },
   },
   'ground': {
-    path: 'M 740 310 L 440 310 L 440 465',
+    path: 'M 740 310 L 515 310 L 515 445 L 440 465',
     destPoint: { x: 440, y: 465 },
   },
   'annapurna-mess': {
-    path: 'M 740 310 L 527 310 L 527 200 L 527 185',
-    destPoint: { x: 527, y: 185 },
+    // Gate 3 -> middle between V-Block & Homi Bhabha -> north into Annapurna Dining Hall
+    path: 'M 740 310 L 505 310 L 505 200 L 520 165',
+    destPoint: { x: 520, y: 165 },
+    note: 'Access via central corridor between V-Block & Homi Bhabha',
   },
   'north-hostels': {
-    path: 'M 740 310 L 480 310 L 480 200 L 480 130',
+    // Gate 3 -> between V-Block & Homi Bhabha -> north residential quad
+    path: 'M 740 310 L 505 310 L 505 200 L 480 130',
     destPoint: { x: 480, y: 130 },
   },
   'west-hostels': {
-    path: 'M 740 310 L 340 310 L 340 265 L 280 265',
-    destPoint: { x: 280, y: 265 },
+    // Gate 3 -> straight avenue leading directly to Vedavathi
+    path: 'M 740 310 L 335 310 L 320 310',
+    destPoint: { x: 320, y: 310 },
   },
   'gate-3': {
     path: 'M 740 310 L 740 310',
@@ -174,8 +191,27 @@ export function InteractiveCampusMap({
   };
 
   const toggleFullscreen = () => {
-    setIsFullscreen(!isFullscreen);
+    setIsFullscreen((prev) => !prev);
   };
+
+  // Lock body scroll and listen for Escape key when fullscreen
+  React.useEffect(() => {
+    if (!isFullscreen) return;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsFullscreen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isFullscreen]);
 
   const toggleRoute = () => {
     if (onToggleRoute) {
@@ -209,7 +245,7 @@ export function InteractiveCampusMap({
           select-none cursor-grab active:cursor-grabbing
           touch-none overscroll-none
           transition-all duration-300
-          ${isFullscreen ? 'fixed inset-0 z-50 rounded-none h-screen w-screen' : 'h-[440px] sm:h-[540px] lg:h-[620px] xl:h-[660px]'}
+          ${isFullscreen ? 'fixed inset-0 z-[99980] rounded-none h-screen w-screen bg-[#F3EFE9] dark:bg-[#140A0D]' : 'h-[440px] sm:h-[540px] lg:h-[620px] xl:h-[660px]'}
         `}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
@@ -273,8 +309,8 @@ export function InteractiveCampusMap({
         )}
 
         {/* Top-Left: Minimal Live Venue Indicator Pill */}
-        <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-20 pointer-events-none">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/85 dark:bg-[#1A0C0F]/85 backdrop-blur-md border border-stone-200/80 dark:border-[#B08D57]/25 shadow-sm text-xs font-medium text-[#16171B] dark:text-[#F5F3F0]">
+        <div className={`absolute z-20 pointer-events-none ${isFullscreen ? 'top-5 left-5 sm:top-6 sm:left-6' : 'top-3 left-3 sm:top-4 sm:left-4'}`}>
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/90 dark:bg-[#1A0C0F]/90 backdrop-blur-md border border-stone-200/80 dark:border-[#B08D57]/25 shadow-sm text-xs font-medium text-[#16171B] dark:text-[#F5F3F0]">
             <span className="w-2 h-2 rounded-full bg-[#B08D57] animate-pulse" />
             <span className="font-mono text-[11px] uppercase tracking-wider text-stone-500 dark:text-stone-400">Selected:</span>
             <span className="font-semibold text-[#6C151E] dark:text-[#B08D57] max-w-[140px] sm:max-w-[200px] truncate">
@@ -283,8 +319,15 @@ export function InteractiveCampusMap({
           </div>
         </div>
 
-        {/* Top-Right: Map Controls (Zoom, Reset, Fullscreen) — Replaces old N compass and bottom buttons */}
-        <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-20 flex items-center gap-1 sm:gap-1.5 p-1 rounded-xl bg-white/90 dark:bg-[#1C0D11]/90 backdrop-blur-md border border-stone-300/80 dark:border-[#B08D57]/30 shadow-lg">
+        {/* Top-Right: Map Controls (Zoom, Reset, Fullscreen) */}
+        <div
+          className={`
+            absolute z-30 flex items-center gap-1 sm:gap-1.5 p-1 rounded-xl
+            bg-white/95 dark:bg-[#1C0D11]/95 backdrop-blur-md
+            border border-stone-300/80 dark:border-[#B08D57]/30 shadow-lg
+            ${isFullscreen ? 'top-5 right-5 sm:top-6 sm:right-6 ring-2 ring-[#B08D57]/40 shadow-2xl' : 'top-3 right-3 sm:top-4 sm:right-4'}
+          `}
+        >
           <button
             onClick={handleZoomOut}
             title="Zoom out"
@@ -312,11 +355,21 @@ export function InteractiveCampusMap({
           <div className="w-px h-4 bg-stone-300 dark:bg-stone-700 mx-0.5" />
           <button
             onClick={toggleFullscreen}
-            title={isFullscreen ? 'Exit Fullscreen' : 'View Full Map'}
+            title={isFullscreen ? 'Exit Fullscreen (Esc)' : 'View Full Map'}
             aria-label={isFullscreen ? 'Exit Fullscreen' : 'View Full Map'}
-            className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg hover:bg-stone-100 dark:hover:bg-white/10 text-[#6C151E] dark:text-[#B08D57] transition-colors cursor-pointer"
+            className="h-7 sm:h-8 px-2 flex items-center gap-1.5 rounded-lg hover:bg-stone-100 dark:hover:bg-white/10 text-[#6C151E] dark:text-[#B08D57] transition-colors cursor-pointer"
           >
-            <Maximize2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            {isFullscreen ? (
+              <>
+                <Minimize2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="text-xs font-semibold text-[#6C151E] dark:text-[#B08D57]">Exit Fullscreen</span>
+              </>
+            ) : (
+              <>
+                <Maximize2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="text-xs font-semibold hidden md:inline text-stone-700 dark:text-stone-300">Enlarge</span>
+              </>
+            )}
           </button>
         </div>
 
@@ -465,12 +518,12 @@ export function InteractiveCampusMap({
               className="text-stone-300 dark:text-[#25151A]"
             />
 
-            {/* West Cross-Road (y: 380) */}
+            {/* West Cross-Road (y: 409 between Ganga and S.R. Block) */}
             <line
               x1="340"
-              y1="380"
+              y1="409"
               x2="70"
-              y2="380"
+              y2="409"
               stroke="currentColor"
               strokeWidth="10"
               className="text-stone-300/80 dark:text-[#25151A]"
@@ -591,13 +644,22 @@ export function InteractiveCampusMap({
               >
                 GATE 3
               </text>
+              {/* SRM Gate 3 text placed strictly on the DOWNSIDE (below the gate) */}
               <text
-                x="815"
-                y="314"
-                textAnchor="start"
-                className="font-mono text-[10px] font-semibold tracking-wider fill-[#6C151E] dark:fill-[#B08D57] select-none pointer-events-none"
+                x="765"
+                y="346"
+                textAnchor="middle"
+                className="font-mono text-[9px] font-bold tracking-wider fill-[#6C151E] dark:fill-[#B08D57] select-none pointer-events-none"
               >
-                srm gate 3 →
+                SRM GATE 3
+              </text>
+              <text
+                x="765"
+                y="358"
+                textAnchor="middle"
+                className="font-mono text-[7.5px] font-semibold tracking-wide fill-stone-600 dark:fill-stone-400 select-none pointer-events-none"
+              >
+                ↓ MAIN ENTRY
               </text>
             </g>
 
@@ -617,10 +679,10 @@ export function InteractiveCampusMap({
                 height="36"
                 rx="6"
                 filter={isSelected('north-hostels') ? 'url(#shadow-3d-active)' : 'url(#shadow-3d)'}
-                className={`transition-all duration-200 group-hover:-translate-y-0.5 ${isSelected('north-hostels') ? 'fill-[#6C151E] stroke-[#B08D57] stroke-2' : 'fill-white dark:fill-[#201116] stroke-stone-300 dark:stroke-stone-700/80 stroke-1 group-hover:stroke-[#B08D57]'}`}
+                className={`transition-all duration-200 group-hover:-translate-y-0.5 ${isSelected('north-hostels') ? 'fill-[#6C151E] stroke-[#B08D57] stroke-2' : 'fill-[#341F25] dark:fill-[#201015] stroke-[#B08D57]/50 stroke-1 group-hover:stroke-[#B08D57]'}`}
               />
               <line x1="403" y1="46" x2="467" y2="46" stroke="currentColor" strokeWidth="1" className={isSelected('north-hostels') ? 'text-[#B08D57]/60' : 'text-white/60 dark:text-white/10'} />
-              <text x="435" y="67" textAnchor="middle" className="font-sans text-[11px] font-medium fill-stone-700 dark:fill-stone-300 select-none pointer-events-none">
+              <text x="435" y="67" textAnchor="middle" className="font-sans text-[11px] font-bold fill-white select-none pointer-events-none drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)]">
                 Kaveri
               </text>
 
@@ -633,10 +695,10 @@ export function InteractiveCampusMap({
                 height="36"
                 rx="6"
                 filter={isSelected('north-hostels') ? 'url(#shadow-3d-active)' : 'url(#shadow-3d)'}
-                className={`transition-all duration-200 group-hover:-translate-y-0.5 ${isSelected('north-hostels') ? 'fill-[#6C151E] stroke-[#B08D57] stroke-2' : 'fill-white dark:fill-[#201116] stroke-stone-300 dark:stroke-stone-700/80 stroke-1 group-hover:stroke-[#B08D57]'}`}
+                className={`transition-all duration-200 group-hover:-translate-y-0.5 ${isSelected('north-hostels') ? 'fill-[#6C151E] stroke-[#B08D57] stroke-2' : 'fill-[#341F25] dark:fill-[#201015] stroke-[#B08D57]/50 stroke-1 group-hover:stroke-[#B08D57]'}`}
               />
               <line x1="403" y1="96" x2="467" y2="96" stroke="currentColor" strokeWidth="1" className={isSelected('north-hostels') ? 'text-[#B08D57]/60' : 'text-white/60 dark:text-white/10'} />
-              <text x="435" y="117" textAnchor="middle" className="font-sans text-[11px] font-medium fill-stone-700 dark:fill-stone-300 select-none pointer-events-none">
+              <text x="435" y="117" textAnchor="middle" className="font-sans text-[11px] font-bold fill-white select-none pointer-events-none drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)]">
                 Godavari
               </text>
 
@@ -649,10 +711,10 @@ export function InteractiveCampusMap({
                 height="36"
                 rx="6"
                 filter={isSelected('north-hostels') ? 'url(#shadow-3d-active)' : 'url(#shadow-3d)'}
-                className={`transition-all duration-200 group-hover:-translate-y-0.5 ${isSelected('north-hostels') ? 'fill-[#6C151E] stroke-[#B08D57] stroke-2' : 'fill-white dark:fill-[#201116] stroke-stone-300 dark:stroke-stone-700/80 stroke-1 group-hover:stroke-[#B08D57]'}`}
+                className={`transition-all duration-200 group-hover:-translate-y-0.5 ${isSelected('north-hostels') ? 'fill-[#6C151E] stroke-[#B08D57] stroke-2' : 'fill-[#341F25] dark:fill-[#201015] stroke-[#B08D57]/50 stroke-1 group-hover:stroke-[#B08D57]'}`}
               />
               <line x1="403" y1="146" x2="467" y2="146" stroke="currentColor" strokeWidth="1" className={isSelected('north-hostels') ? 'text-[#B08D57]/60' : 'text-white/60 dark:text-white/10'} />
-              <text x="435" y="167" textAnchor="middle" className="font-sans text-[11px] font-medium fill-stone-700 dark:fill-stone-300 select-none pointer-events-none">
+              <text x="435" y="167" textAnchor="middle" className="font-sans text-[11px] font-bold fill-white select-none pointer-events-none drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)]">
                 Krishna
               </text>
             </g>
@@ -673,11 +735,11 @@ export function InteractiveCampusMap({
                 height="36"
                 rx="6"
                 filter={isSelected('north-hostels') ? 'url(#shadow-3d-active)' : 'url(#shadow-3d)'}
-                className={`transition-all duration-200 group-hover:-translate-y-0.5 ${isSelected('north-hostels') ? 'fill-[#6C151E] stroke-[#B08D57] stroke-2' : 'fill-white dark:fill-[#201116] stroke-stone-300 dark:stroke-stone-700/80 stroke-1 group-hover:stroke-[#B08D57]'}`}
+                className={`transition-all duration-200 group-hover:-translate-y-0.5 ${isSelected('north-hostels') ? 'fill-[#6C151E] stroke-[#B08D57] stroke-2' : 'fill-[#341F25] dark:fill-[#201015] stroke-[#B08D57]/50 stroke-1 group-hover:stroke-[#B08D57]'}`}
               />
               <line x1="533" y1="46" x2="597" y2="46" stroke="currentColor" strokeWidth="1" className={isSelected('north-hostels') ? 'text-[#B08D57]/60' : 'text-white/60 dark:text-white/10'} />
-              <text x="565" y="67" textAnchor="middle" className="font-sans text-[11px] font-medium fill-stone-700 dark:fill-stone-300 select-none pointer-events-none">
-                yamuna
+              <text x="565" y="67" textAnchor="middle" className="font-sans text-[11px] font-bold fill-white select-none pointer-events-none drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)]">
+                Yamuna
               </text>
 
               {/* Narmada */}
@@ -689,10 +751,10 @@ export function InteractiveCampusMap({
                 height="36"
                 rx="6"
                 filter={isSelected('north-hostels') ? 'url(#shadow-3d-active)' : 'url(#shadow-3d)'}
-                className={`transition-all duration-200 group-hover:-translate-y-0.5 ${isSelected('north-hostels') ? 'fill-[#6C151E] stroke-[#B08D57] stroke-2' : 'fill-white dark:fill-[#201116] stroke-stone-300 dark:stroke-stone-700/80 stroke-1 group-hover:stroke-[#B08D57]'}`}
+                className={`transition-all duration-200 group-hover:-translate-y-0.5 ${isSelected('north-hostels') ? 'fill-[#6C151E] stroke-[#B08D57] stroke-2' : 'fill-[#341F25] dark:fill-[#201015] stroke-[#B08D57]/50 stroke-1 group-hover:stroke-[#B08D57]'}`}
               />
               <line x1="533" y1="96" x2="597" y2="96" stroke="currentColor" strokeWidth="1" className={isSelected('north-hostels') ? 'text-[#B08D57]/60' : 'text-white/60 dark:text-white/10'} />
-              <text x="565" y="117" textAnchor="middle" className="font-sans text-[11px] font-medium fill-stone-700 dark:fill-stone-300 select-none pointer-events-none">
+              <text x="565" y="117" textAnchor="middle" className="font-sans text-[11px] font-bold fill-white select-none pointer-events-none drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)]">
                 Narmada
               </text>
             </g>
@@ -710,11 +772,11 @@ export function InteractiveCampusMap({
                 height="42"
                 rx="6"
                 filter={isSelected('annapurna-mess') ? 'url(#shadow-3d-active)' : 'url(#shadow-3d)'}
-                className={`transition-all duration-200 group-hover:-translate-y-0.5 ${isSelected('annapurna-mess') ? 'fill-[#6C151E] stroke-[#B08D57] stroke-2' : 'fill-white dark:fill-[#201116] stroke-stone-300 dark:stroke-stone-700/80 stroke-1 group-hover:stroke-[#B08D57]'}`}
+                className={`transition-all duration-200 group-hover:-translate-y-0.5 ${isSelected('annapurna-mess') ? 'fill-[#6C151E] stroke-[#B08D57] stroke-2' : 'fill-[#341F25] dark:fill-[#201015] stroke-[#B08D57]/50 stroke-1 group-hover:stroke-[#B08D57]'}`}
               />
               <line x1="528" y1="146" x2="607" y2="146" stroke="currentColor" strokeWidth="1" className={isSelected('annapurna-mess') ? 'text-[#B08D57]/60' : 'text-white/60 dark:text-white/10'} />
-              <text x="567" y="169" textAnchor="middle" className="font-sans text-[10.5px] font-medium fill-stone-700 dark:fill-stone-300 select-none pointer-events-none">
-                Annapurna mess
+              <text x="567" y="169" textAnchor="middle" className="font-sans text-[11px] font-bold fill-white select-none pointer-events-none drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)]">
+                Annapurna Mess
               </text>
             </g>
 
@@ -834,35 +896,75 @@ export function InteractiveCampusMap({
 
             {/* =========================================================
                 CENTER MAIN ACADEMIC: X-LAB (MAIN AUDI) & JC BOSE
+                X-Lab is a perfect square (105x105) with an inward curve
+                and 3 tiered inward indents leading to the entrance portal.
             ========================================================== */}
             <g
               className="cursor-pointer group"
               onClick={() => handleBuildingClick('x-lab')}
             >
-              {/* 3D Tall Facade Base (Tallest venue, depth 8px) */}
-              <rect x="370" y="343" width="135" height="95" rx="8" className={isSelected('x-lab') ? 'fill-[#3B070D]' : 'fill-stone-300 dark:fill-[#120609]'} />
-              {/* 3D Roof */}
-              <rect
-                x="370"
-                y="335"
-                width="135"
-                height="95"
-                rx="8"
+              {/* 3D Tall Facade Base (Perfect Square with Inward Curve) */}
+              <path
+                d="M 388 343 L 477 343 A 8 8 0 0 1 485 351 L 485 440 A 8 8 0 0 1 477 448 L 388 448 A 8 8 0 0 1 380 440 L 380 428 C 412 422, 412 369, 380 363 L 380 351 A 8 8 0 0 1 388 343 Z"
+                className={isSelected('x-lab') ? 'fill-[#3B070D]' : 'fill-stone-300 dark:fill-[#120609]'}
+              />
+
+              {/* 3D Roof: Perfect Square (105x105) with Inward Concave Facade */}
+              <path
+                d="M 388 335 L 477 335 A 8 8 0 0 1 485 343 L 485 432 A 8 8 0 0 1 477 440 L 388 440 A 8 8 0 0 1 380 432 L 380 420 C 412 414, 412 361, 380 355 L 380 343 A 8 8 0 0 1 388 335 Z"
                 filter={isSelected('x-lab') ? 'url(#shadow-3d-active)' : 'url(#shadow-3d-tall)'}
                 className={`transition-all duration-200 group-hover:-translate-y-0.5 ${isSelected('x-lab') ? 'fill-[#6C151E] stroke-[#B08D57] stroke-2' : 'fill-white dark:fill-[#201116] stroke-stone-300 dark:stroke-stone-700 stroke-1 group-hover:stroke-[#B08D57]'}`}
               />
-              <line x1="380" y1="336" x2="495" y2="336" stroke="currentColor" strokeWidth="1" className={isSelected('x-lab') ? 'text-[#B08D57]/60' : 'text-white/60 dark:text-white/10'} />
+
+              {/* 3 Indents Inward (Tiered Concentric Inward Recesses) */}
+              {/* Indent 1 (Outer Inward Tier) */}
+              <path
+                d="M 380 357 C 394 366, 394 409, 380 418"
+                fill="none"
+                stroke="#B08D57"
+                strokeOpacity="0.45"
+                strokeWidth="1.2"
+              />
+              {/* Indent 2 (Middle Inward Tier) */}
+              <path
+                d="M 380 364 C 402 372, 402 403, 380 411"
+                fill="none"
+                stroke="#B08D57"
+                strokeOpacity="0.75"
+                strokeWidth="1.5"
+              />
+              {/* Indent 3 (Innermost Inward Tier / Portal) */}
+              <path
+                d="M 380 371 C 409 377, 409 398, 380 404"
+                fill="#B08D57"
+                fillOpacity={isSelected('x-lab') ? '0.3' : '0.12'}
+                stroke="#B08D57"
+                strokeWidth="1.8"
+              />
+
+              {/* Inward Entrance Doorway at Apex */}
+              <rect x="403" y="382" width="4" height="11" rx="1.5" fill="#B08D57" />
               <text
-                x="437"
-                y="382"
+                x="410"
+                y="384"
+                textAnchor="start"
+                className="font-mono text-[7px] font-bold fill-[#B08D57] select-none pointer-events-none"
+              >
+                ENTRY
+              </text>
+
+              <line x1="390" y1="336" x2="475" y2="336" stroke="currentColor" strokeWidth="1" className={isSelected('x-lab') ? 'text-[#B08D57]/60' : 'text-white/60 dark:text-white/10'} />
+              <text
+                x="445"
+                y="384"
                 textAnchor="middle"
                 className={`font-serif text-sm font-bold select-none pointer-events-none ${isSelected('x-lab') ? 'fill-white' : 'fill-[#16171B] dark:fill-[#F5F3F0]'}`}
               >
                 X-Lab
               </text>
               <text
-                x="437"
-                y="397"
+                x="445"
+                y="399"
                 textAnchor="middle"
                 className={`font-mono text-[9px] font-semibold select-none pointer-events-none ${isSelected('x-lab') ? 'fill-[#B08D57]' : 'fill-[#6C151E] dark:fill-[#B08D57]'}`}
               >
@@ -907,99 +1009,115 @@ export function InteractiveCampusMap({
 
             {/* =========================================================
                 WEST HOSTELS (Theestha, Vedavathi, Ganga, Brahmaputra)
+                Vedavathi is aligned directly opposite the Gate 3 main avenue (y: 310)
+                Ganga is moved down below Vedavathi
+                All hostel text labels are rendered in crisp, high-contrast white
             ========================================================== */}
             <g
               className="cursor-pointer group"
               onClick={() => handleBuildingClick('west-hostels')}
             >
               {/* Theestha */}
-              <rect x="245" y="189" width="70" height="42" rx="6" className={isSelected('west-hostels') ? 'fill-[#3B070D]' : 'fill-stone-300 dark:fill-[#120609]'} />
+              <rect x="245" y="231" width="75" height="42" rx="6" className={isSelected('west-hostels') ? 'fill-[#3B070D]' : 'fill-stone-300 dark:fill-[#120609]'} />
               <rect
                 x="245"
-                y="185"
-                width="70"
-                height="42"
-                rx="6"
-                filter={isSelected('west-hostels') ? 'url(#shadow-3d-active)' : 'url(#shadow-3d)'}
-                className={`transition-all duration-200 group-hover:-translate-y-0.5 ${isSelected('west-hostels') ? 'fill-[#6C151E] stroke-[#B08D57] stroke-2' : 'fill-white dark:fill-[#201116] stroke-stone-300 dark:stroke-stone-700 stroke-1 group-hover:stroke-[#B08D57]'}`}
-              />
-              <line x1="251" y1="186" x2="309" y2="186" stroke="currentColor" strokeWidth="1" className={isSelected('west-hostels') ? 'text-[#B08D57]/60' : 'text-white/60 dark:text-white/10'} />
-              <text x="280" y="210" textAnchor="middle" className="font-sans text-[10.5px] font-medium fill-stone-700 dark:fill-stone-300 select-none pointer-events-none">
-                theestha
-              </text>
-
-              {/* Vedavathi */}
-              <rect x="245" y="249" width="70" height="42" rx="6" className={isSelected('west-hostels') ? 'fill-[#3B070D]' : 'fill-stone-300 dark:fill-[#120609]'} />
-              <rect
-                x="245"
-                y="245"
-                width="70"
-                height="42"
-                rx="6"
-                filter={isSelected('west-hostels') ? 'url(#shadow-3d-active)' : 'url(#shadow-3d)'}
-                className={`transition-all duration-200 group-hover:-translate-y-0.5 ${isSelected('west-hostels') ? 'fill-[#6C151E] stroke-[#B08D57] stroke-2' : 'fill-white dark:fill-[#201116] stroke-stone-300 dark:stroke-stone-700 stroke-1 group-hover:stroke-[#B08D57]'}`}
-              />
-              <line x1="251" y1="246" x2="309" y2="246" stroke="currentColor" strokeWidth="1" className={isSelected('west-hostels') ? 'text-[#B08D57]/60' : 'text-white/60 dark:text-white/10'} />
-              <text x="280" y="270" textAnchor="middle" className="font-sans text-[10.5px] font-medium fill-stone-700 dark:fill-stone-300 select-none pointer-events-none">
-                Vedavathi
-              </text>
-
-              {/* Ganga */}
-              <rect x="245" y="309" width="70" height="42" rx="6" className={isSelected('west-hostels') ? 'fill-[#3B070D]' : 'fill-stone-300 dark:fill-[#120609]'} />
-              <rect
-                x="245"
-                y="305"
-                width="70"
-                height="42"
-                rx="6"
-                filter={isSelected('west-hostels') ? 'url(#shadow-3d-active)' : 'url(#shadow-3d)'}
-                className={`transition-all duration-200 group-hover:-translate-y-0.5 ${isSelected('west-hostels') ? 'fill-[#6C151E] stroke-[#B08D57] stroke-2' : 'fill-white dark:fill-[#201116] stroke-stone-300 dark:stroke-stone-700 stroke-1 group-hover:stroke-[#B08D57]'}`}
-              />
-              <line x1="251" y1="306" x2="309" y2="306" stroke="currentColor" strokeWidth="1" className={isSelected('west-hostels') ? 'text-[#B08D57]/60' : 'text-white/60 dark:text-white/10'} />
-              <text x="280" y="330" textAnchor="middle" className="font-sans text-[10.5px] font-medium fill-stone-700 dark:fill-stone-300 select-none pointer-events-none">
-                Ganga
-              </text>
-
-              {/* Brahmaputra */}
-              <rect x="155" y="309" width="75" height="42" rx="6" className={isSelected('west-hostels') ? 'fill-[#3B070D]' : 'fill-stone-300 dark:fill-[#120609]'} />
-              <rect
-                x="155"
-                y="305"
+                y="227"
                 width="75"
                 height="42"
                 rx="6"
                 filter={isSelected('west-hostels') ? 'url(#shadow-3d-active)' : 'url(#shadow-3d)'}
-                className={`transition-all duration-200 group-hover:-translate-y-0.5 ${isSelected('west-hostels') ? 'fill-[#6C151E] stroke-[#B08D57] stroke-2' : 'fill-white dark:fill-[#201116] stroke-stone-300 dark:stroke-stone-700 stroke-1 group-hover:stroke-[#B08D57]'}`}
+                className={`transition-all duration-200 group-hover:-translate-y-0.5 ${isSelected('west-hostels') ? 'fill-[#6C151E] stroke-[#B08D57] stroke-2' : 'fill-[#341F25] dark:fill-[#201015] stroke-[#B08D57]/50 stroke-1 group-hover:stroke-[#B08D57]'}`}
               />
-              <line x1="161" y1="306" x2="224" y2="306" stroke="currentColor" strokeWidth="1" className={isSelected('west-hostels') ? 'text-[#B08D57]/60' : 'text-white/60 dark:text-white/10'} />
-              <text x="192" y="330" textAnchor="middle" className="font-sans text-[10px] font-medium fill-stone-700 dark:fill-stone-300 select-none pointer-events-none">
+              <line x1="251" y1="228" x2="314" y2="228" stroke="currentColor" strokeWidth="1" className={isSelected('west-hostels') ? 'text-[#B08D57]/60' : 'text-white/40 dark:text-white/10'} />
+              <text x="282.5" y="252" textAnchor="middle" className="font-sans text-[11px] font-bold fill-white select-none pointer-events-none drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)]">
+                Theestha
+              </text>
+
+              {/* Vedavathi — Straight ahead at the end of the Gate 3 Avenue (y: 310) */}
+              <rect x="245" y="293" width="75" height="42" rx="6" className={isSelected('west-hostels') ? 'fill-[#3B070D]' : 'fill-stone-300 dark:fill-[#120609]'} />
+              <rect
+                x="245"
+                y="289"
+                width="75"
+                height="42"
+                rx="6"
+                filter={isSelected('west-hostels') ? 'url(#shadow-3d-active)' : 'url(#shadow-3d)'}
+                className={`transition-all duration-200 group-hover:-translate-y-0.5 ${isSelected('west-hostels') ? 'fill-[#6C151E] stroke-[#B08D57] stroke-2' : 'fill-[#341F25] dark:fill-[#201015] stroke-[#B08D57]/50 stroke-1 group-hover:stroke-[#B08D57]'}`}
+              />
+              <line x1="251" y1="290" x2="314" y2="290" stroke="currentColor" strokeWidth="1" className={isSelected('west-hostels') ? 'text-[#B08D57]/60' : 'text-white/40 dark:text-white/10'} />
+              <text x="282.5" y="314" textAnchor="middle" className="font-sans text-[11px] font-bold fill-white select-none pointer-events-none drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)]">
+                Vedavathi
+              </text>
+
+              {/* Ganga — Moved down below Vedavathi */}
+              <rect x="245" y="355" width="75" height="42" rx="6" className={isSelected('west-hostels') ? 'fill-[#3B070D]' : 'fill-stone-300 dark:fill-[#120609]'} />
+              <rect
+                x="245"
+                y="351"
+                width="75"
+                height="42"
+                rx="6"
+                filter={isSelected('west-hostels') ? 'url(#shadow-3d-active)' : 'url(#shadow-3d)'}
+                className={`transition-all duration-200 group-hover:-translate-y-0.5 ${isSelected('west-hostels') ? 'fill-[#6C151E] stroke-[#B08D57] stroke-2' : 'fill-[#341F25] dark:fill-[#201015] stroke-[#B08D57]/50 stroke-1 group-hover:stroke-[#B08D57]'}`}
+              />
+              <line x1="251" y1="352" x2="314" y2="352" stroke="currentColor" strokeWidth="1" className={isSelected('west-hostels') ? 'text-[#B08D57]/60' : 'text-white/40 dark:text-white/10'} />
+              <text x="282.5" y="376" textAnchor="middle" className="font-sans text-[11px] font-bold fill-white select-none pointer-events-none drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)]">
+                Ganga
+              </text>
+
+              {/* Brahmaputra */}
+              <rect x="155" y="355" width="75" height="42" rx="6" className={isSelected('west-hostels') ? 'fill-[#3B070D]' : 'fill-stone-300 dark:fill-[#120609]'} />
+              <rect
+                x="155"
+                y="351"
+                width="75"
+                height="42"
+                rx="6"
+                filter={isSelected('west-hostels') ? 'url(#shadow-3d-active)' : 'url(#shadow-3d)'}
+                className={`transition-all duration-200 group-hover:-translate-y-0.5 ${isSelected('west-hostels') ? 'fill-[#6C151E] stroke-[#B08D57] stroke-2' : 'fill-[#341F25] dark:fill-[#201015] stroke-[#B08D57]/50 stroke-1 group-hover:stroke-[#B08D57]'}`}
+              />
+              <line x1="161" y1="352" x2="224" y2="352" stroke="currentColor" strokeWidth="1" className={isSelected('west-hostels') ? 'text-[#B08D57]/60' : 'text-white/40 dark:text-white/10'} />
+              <text x="192.5" y="376" textAnchor="middle" className="font-sans text-[10.5px] font-bold fill-white select-none pointer-events-none drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)]">
                 Brahmaputra
               </text>
             </g>
 
             {/* =========================================================
                 LOWER LEFT: S-BLOCK & C-BLOCK
+                Path from Gate 3 turns right from Ganga into top width entry of S.R. Block
             ========================================================== */}
             <g
               className="cursor-pointer group"
               onClick={() => handleBuildingClick('sr-block')}
             >
               {/* 3D Facade Base */}
-              <rect x="250" y="417" width="60" height="160" rx="8" className={isSelected('sr-block') ? 'fill-[#3B070D]' : 'fill-stone-300 dark:fill-[#120609]'} />
+              <rect x="250" y="432" width="60" height="155" rx="8" className={isSelected('sr-block') ? 'fill-[#3B070D]' : 'fill-stone-300 dark:fill-[#120609]'} />
               {/* 3D Roof */}
               <rect
                 x="250"
-                y="410"
+                y="425"
                 width="60"
-                height="160"
+                height="155"
                 rx="8"
                 filter={isSelected('sr-block') ? 'url(#shadow-3d-active)' : 'url(#shadow-3d)'}
                 className={`transition-all duration-200 group-hover:-translate-y-0.5 ${isSelected('sr-block') ? 'fill-[#6C151E] stroke-[#B08D57] stroke-2' : 'fill-white dark:fill-[#201116] stroke-stone-300 dark:stroke-stone-700 stroke-1 group-hover:stroke-[#B08D57]'}`}
               />
-              <line x1="258" y1="411" x2="302" y2="411" stroke="currentColor" strokeWidth="1" className={isSelected('sr-block') ? 'text-[#B08D57]/60' : 'text-white/60 dark:text-white/10'} />
+              <line x1="258" y1="426" x2="302" y2="426" stroke="currentColor" strokeWidth="1" className={isSelected('sr-block') ? 'text-[#B08D57]/60' : 'text-white/60 dark:text-white/10'} />
+
+              {/* Top Width Entrance to S.R. Block (turning right from Ganga) */}
+              <rect x="272" y="423" width="16" height="4.5" rx="1.5" fill="#B08D57" />
               <text
                 x="280"
-                y="488"
+                y="418"
+                textAnchor="middle"
+                className="font-mono text-[7px] font-bold fill-[#B08D57] select-none pointer-events-none"
+              >
+                ENTRY
+              </text>
+
+              <text
+                x="280"
+                y="497"
                 textAnchor="middle"
                 className={`font-sans text-xs font-semibold select-none pointer-events-none ${isSelected('sr-block') ? 'fill-white' : 'fill-[#16171B] dark:fill-[#F5F3F0]'}`}
               >
@@ -1007,7 +1125,7 @@ export function InteractiveCampusMap({
               </text>
               <text
                 x="280"
-                y="502"
+                y="511"
                 textAnchor="middle"
                 className={`font-mono text-[8px] select-none pointer-events-none ${isSelected('sr-block') ? 'fill-white/80' : 'fill-stone-500 dark:fill-stone-400'}`}
               >
@@ -1109,6 +1227,23 @@ export function InteractiveCampusMap({
                 Food court
               </text>
             </g>
+
+            {/* Dual Route Indicators when Food Court is active */}
+            {showRoute && activeId === 'food-court' && (
+              <g className="pointer-events-none">
+                {/* Way 1 badge: between X-Lab & JC Bose */}
+                <rect x="475" y="380" width="80" height="18" rx="4" fill="#1C0D11" stroke="#B08D57" strokeWidth="0.8" opacity="0.92" />
+                <text x="515" y="392" textAnchor="middle" className="font-mono text-[7.5px] font-bold fill-[#B08D57] select-none">
+                  Way 1: Via Plaza
+                </text>
+
+                {/* Way 2 badge: via Vedavathi & SR Block */}
+                <rect x="285" y="380" width="108" height="18" rx="4" fill="#1C0D11" stroke="#B08D57" strokeWidth="0.8" opacity="0.92" />
+                <text x="339" y="392" textAnchor="middle" className="font-mono text-[7.5px] font-bold fill-[#B08D57] select-none">
+                  Way 2: Via S.R. Block
+                </text>
+              </g>
+            )}
 
             {/* Active Destination Pinpoint Beacon */}
             {activeId !== 'gate-3' && currentRoute && (
