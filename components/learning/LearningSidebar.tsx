@@ -3,8 +3,9 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { BookOpen, Users, ChevronRight, ChevronDown, Award, PlayCircle } from 'lucide-react';
+import { BookOpen, Users, ChevronRight, ChevronDown, Award, PlayCircle, LogOut, Shield } from 'lucide-react';
 import clsx from 'clsx';
+import { supabase } from '@/lib/supabase/client';
 import { CURRICULUM_SESSIONS } from '@/data/learning/curriculum';
 import { DAILY_COMPETITIONS } from '@/data/learning/competitions';
 
@@ -30,6 +31,26 @@ export function LearningSidebar() {
       : 1;
 
   const [openDay, setOpenDay] = useState<number | null>(initialOpenDay || 1);
+  const [session, setSession] = useState<any>(null);
+
+  React.useEffect(() => {
+    fetch('/api/auth/session')
+      .then(res => res.json())
+      .then(data => {
+        if (data.session) setSession(data.session);
+      })
+      .catch(console.error);
+  }, []);
+
+  async function handleSignOut() {
+    try {
+      await fetch('/api/auth/session', { method: 'DELETE' });
+      await supabase.auth.signOut();
+      window.location.reload();
+    } catch (err) {
+      console.error('Error signing out:', err);
+    }
+  }
 
   return (
     <div className="flex flex-col h-full bg-white">
@@ -144,6 +165,39 @@ export function LearningSidebar() {
           <ChevronRight className={clsx('w-3.5 h-3.5 transition-transform', isHackathon ? 'text-burgundy translate-x-0.5' : 'text-slate-300')} />
         </Link>
       </nav>
+
+      {/* User Profile & Sign Out at the bottom */}
+      {session && (
+        <div className="p-4 border-t border-slate-100 bg-slate-50 mt-auto">
+          <div className="flex flex-col gap-2">
+            <div className="flex flex-col">
+              <span className="font-semibold text-xs text-slate-800 line-clamp-1">
+                {session.fullName || session.email}
+              </span>
+              <span className="text-[10px] text-slate-500 line-clamp-1">{session.email}</span>
+            </div>
+            
+            <div className="flex items-center gap-2 mt-2 pt-2 border-t border-slate-200/60">
+              {session.isAdmin && (
+                <Link
+                  href="/learning/admin"
+                  className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded bg-burgundy/10 text-burgundy hover:bg-burgundy/20 transition-colors text-[10px] font-bold tracking-wider"
+                >
+                  <Shield className="w-3 h-3" />
+                  Admin
+                </Link>
+              )}
+              <button
+                onClick={handleSignOut}
+                className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded border border-slate-200 text-slate-600 hover:bg-slate-200 transition-colors text-[10px] font-bold tracking-wider cursor-pointer"
+              >
+                <LogOut className="w-3 h-3" />
+                Sign Out
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
