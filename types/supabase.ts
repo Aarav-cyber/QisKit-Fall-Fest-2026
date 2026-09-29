@@ -224,6 +224,91 @@ export interface Database {
           created_at?: string;
         };
       };
+      certificate_orders: {
+        Row: {
+          id: string;
+          user_email: string;
+          razorpay_order_id: string;
+          razorpay_payment_id: string | null;
+          razorpay_signature: string | null;
+          amount_paise: number;
+          currency: string;
+          status: 'created' | 'attempted' | 'paid' | 'failed' | 'refunded';
+          idempotency_key: string | null;
+          metadata: Json;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_email: string;
+          razorpay_order_id: string;
+          razorpay_payment_id?: string | null;
+          razorpay_signature?: string | null;
+          amount_paise: number;
+          currency?: string;
+          status?: 'created' | 'attempted' | 'paid' | 'failed' | 'refunded';
+          idempotency_key?: string | null;
+          metadata?: Json;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_email?: string;
+          razorpay_order_id?: string;
+          razorpay_payment_id?: string | null;
+          razorpay_signature?: string | null;
+          amount_paise?: number;
+          currency?: string;
+          status?: 'created' | 'attempted' | 'paid' | 'failed' | 'refunded';
+          idempotency_key?: string | null;
+          metadata?: Json;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      issued_certificates: {
+        Row: {
+          id: string;
+          serial_number: string;
+          user_email: string;
+          recipient_name: string;
+          institution: string;
+          course_name: string;
+          order_id: string | null;
+          average_quiz_score: number;
+          certificate_url: string;
+          verification_hash: string;
+          issued_at: string;
+        };
+        Insert: {
+          id?: string;
+          serial_number: string;
+          user_email: string;
+          recipient_name: string;
+          institution?: string;
+          course_name?: string;
+          order_id?: string | null;
+          average_quiz_score: number;
+          certificate_url: string;
+          verification_hash: string;
+          issued_at?: string;
+        };
+        Update: {
+          id?: string;
+          serial_number?: string;
+          user_email?: string;
+          recipient_name?: string;
+          institution?: string;
+          course_name?: string;
+          order_id?: string | null;
+          average_quiz_score?: number;
+          certificate_url?: string;
+          verification_hash?: string;
+          issued_at?: string;
+        };
+      };
     };
   };
 }

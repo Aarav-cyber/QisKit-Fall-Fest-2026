@@ -236,6 +236,45 @@ Legacy/onsite general registration submissions table provisioned during initial 
 
 ---
 
+### 3.8 `public.certificate_orders`
+Tracks Razorpay checkout orders, payment attempts, and transaction reconciliation.
+
+| Column | Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | `UUID` | `PRIMARY KEY DEFAULT gen_random_uuid()` | Internal transaction identifier. |
+| `user_email` | `TEXT` | `NOT NULL` | Participant email. |
+| `razorpay_order_id` | `TEXT` | `UNIQUE NOT NULL` | Razorpay order ID (`order_xxx`). |
+| `razorpay_payment_id` | `TEXT` | `UNIQUE NULLABLE` | Gateway payment verification ID (`pay_xxx`). |
+| `razorpay_signature` | `TEXT` | `NULLABLE` | Cryptographic HMAC-SHA256 signature. |
+| `amount_paise` | `INTEGER` | `NOT NULL` | Order amount in smallest currency unit (e.g. 49900 = ₹499.00). |
+| `currency` | `TEXT` | `DEFAULT 'INR' NOT NULL` | Base currency. |
+| `status` | `TEXT` | `CHECK (status IN ('created','attempted','paid','failed','refunded'))` | State machine order status. |
+| `idempotency_key` | `TEXT` | `UNIQUE NULLABLE` | Client idempotency key preventing duplicate orders. |
+| `metadata` | `JSONB` | `DEFAULT '{}'` | Additional telemetry and course details. |
+| `created_at` | `TIMESTAMPTZ`| `DEFAULT now() NOT NULL` | Order creation timestamp. |
+| `updated_at` | `TIMESTAMPTZ`| `DEFAULT now() NOT NULL` | Last status update timestamp. |
+
+---
+
+### 3.9 `public.issued_certificates`
+Stores official minted academic credentials with public verification hashes and immutable CDN links.
+
+| Column | Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | `UUID` | `PRIMARY KEY DEFAULT gen_random_uuid()` | Certificate record ID. |
+| `serial_number` | `TEXT` | `UNIQUE NOT NULL` | Canonical serial identifier (`QFF26-MCL-202610-XXXX`). |
+| `user_email` | `TEXT` | `NOT NULL` | Recipient email. |
+| `recipient_name` | `TEXT` | `NOT NULL` | Recipient full name. |
+| `institution` | `TEXT` | `DEFAULT 'SRM University-AP'` | Issuing host institution. |
+| `course_name` | `TEXT` | `NOT NULL` | Completed curriculum track. |
+| `order_id` | `UUID` | `REFERENCES certificate_orders(id)` | Associated payment transaction. |
+| `average_quiz_score` | `NUMERIC(5,2)`| `NOT NULL` | Candidate average score across all 6 quizzes. |
+| `certificate_url` | `TEXT` | `NOT NULL` | Permanent public CDN asset URL in Supabase Storage. |
+| `verification_hash` | `TEXT` | `UNIQUE NOT NULL` | SHA-256 tamper-proof credential verification hash. |
+| `issued_at` | `TIMESTAMPTZ`| `DEFAULT now() NOT NULL` | Issuance timestamp. |
+
+---
+
 ## 4. Upstash Redis Caching Layer
 
 To guarantee sub-millisecond API response times and protect Supabase connection pools during registration bursts, high-frequency read operations are cached in Upstash Redis (`lib/redis.ts`):
@@ -255,5 +294,6 @@ Whenever an email is added, modified, deleted in `/learning/admin`, or whenever 
 All database DDL statements are tracked in git under:
 - `supabase/migrations/20260925000000_create_registrations.sql`
 - `supabase/migrations/20260929214500_create_learning_and_hackathon_platform.sql`
+- `supabase/migrations/20260930000000_create_certificate_and_payments.sql`
 
 To apply changes to a new environment or replica, run the migration scripts sequentially via the Supabase CLI (`supabase db push`) or through the Supabase SQL Editor.
