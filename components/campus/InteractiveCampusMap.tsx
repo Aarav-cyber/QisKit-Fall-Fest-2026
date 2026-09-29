@@ -42,9 +42,9 @@ export const GATE3_ROUTES: Record<
 > = {
   'x-lab': {
     // Gate 3 -> past central axis to Vedavathi front -> turn south along western avenue -> inward curved entrance
-    path: 'M 740 310 L 340 310 L 340 387.5 L 404 387.5',
-    destPoint: { x: 404, y: 387.5 },
-    note: 'Turn at Vedavathi front, enter through inward curved entrance with 3 indents',
+    path: 'M 740 310 L 515 310 L 515 450 L 432.5 450 L 432.5 440',
+    destPoint: { x: 432.5, y: 440 },
+    note: 'Enter from the southern notch entrance',
   },
   'jc-bose': {
     // Gate 3 -> JC Bose north facade
@@ -840,6 +840,10 @@ export function InteractiveCampusMap({
                 className={`transition-all duration-200 group-hover:-translate-y-0.5 ${isSelected('v-block') ? 'fill-[#6C151E] stroke-[#B08D57] stroke-2' : 'fill-white dark:fill-[#201116] stroke-stone-300 dark:stroke-stone-700 stroke-1 group-hover:stroke-[#B08D57]'}`}
               />
               <line x1="380" y1="226" x2="485" y2="226" stroke="currentColor" strokeWidth="1" className={isSelected('v-block') ? 'text-[#B08D57]/60' : 'text-white/60 dark:text-white/10'} />
+
+              <rect x="522" y="247" width="4.5" height="16" rx="1.5" fill="#B08D57" />
+              <text x="517" y="257" textAnchor="end" className="font-mono text-[7px] font-bold fill-[#B08D57] select-none pointer-events-none">ENTRY</text>
+
               <text
                 x="432"
                 y="256"
@@ -876,6 +880,10 @@ export function InteractiveCampusMap({
                 className={`transition-all duration-200 group-hover:-translate-y-0.5 ${isSelected('homi-bhabha') ? 'fill-[#6C151E] stroke-[#B08D57] stroke-2' : 'fill-white dark:fill-[#201116] stroke-stone-300 dark:stroke-stone-700 stroke-1 group-hover:stroke-[#B08D57]'}`}
               />
               <line x1="525" y1="226" x2="640" y2="226" stroke="currentColor" strokeWidth="1" className={isSelected('homi-bhabha') ? 'text-[#B08D57]/60' : 'text-white/60 dark:text-white/10'} />
+
+              <rect x="483" y="247" width="4.5" height="16" rx="1.5" fill="#B08D57" />
+              <text x="491" y="257" textAnchor="start" className="font-mono text-[7px] font-bold fill-[#B08D57] select-none pointer-events-none">ENTRY</text>
+
               <text
                 x="582"
                 y="256"
@@ -903,51 +911,25 @@ export function InteractiveCampusMap({
               className="cursor-pointer group"
               onClick={() => handleBuildingClick('x-lab')}
             >
-              {/* 3D Tall Facade Base (Perfect Square with Inward Curve) */}
+              {/* 3D Tall Facade Base (U-Shape / Square with Notch) */}
               <path
-                d="M 388 343 L 477 343 A 8 8 0 0 1 485 351 L 485 440 A 8 8 0 0 1 477 448 L 388 448 A 8 8 0 0 1 380 440 L 380 428 C 412 422, 412 369, 380 363 L 380 351 A 8 8 0 0 1 388 343 Z"
+                d="M 380 343 L 485 343 L 485 448 L 450 448 L 450 403 L 415 403 L 415 448 L 380 448 Z"
                 className={isSelected('x-lab') ? 'fill-[#3B070D]' : 'fill-stone-300 dark:fill-[#120609]'}
               />
 
-              {/* 3D Roof: Perfect Square (105x105) with Inward Concave Facade */}
+              {/* 3D Roof */}
               <path
-                d="M 388 335 L 477 335 A 8 8 0 0 1 485 343 L 485 432 A 8 8 0 0 1 477 440 L 388 440 A 8 8 0 0 1 380 432 L 380 420 C 412 414, 412 361, 380 355 L 380 343 A 8 8 0 0 1 388 335 Z"
+                d="M 380 335 L 485 335 L 485 440 L 450 440 L 450 395 L 415 395 L 415 440 L 380 440 Z"
                 filter={isSelected('x-lab') ? 'url(#shadow-3d-active)' : 'url(#shadow-3d-tall)'}
                 className={`transition-all duration-200 group-hover:-translate-y-0.5 ${isSelected('x-lab') ? 'fill-[#6C151E] stroke-[#B08D57] stroke-2' : 'fill-white dark:fill-[#201116] stroke-stone-300 dark:stroke-stone-700 stroke-1 group-hover:stroke-[#B08D57]'}`}
               />
 
-              {/* 3 Indents Inward (Tiered Concentric Inward Recesses) */}
-              {/* Indent 1 (Outer Inward Tier) */}
-              <path
-                d="M 380 357 C 394 366, 394 409, 380 418"
-                fill="none"
-                stroke="#B08D57"
-                strokeOpacity="0.45"
-                strokeWidth="1.2"
-              />
-              {/* Indent 2 (Middle Inward Tier) */}
-              <path
-                d="M 380 364 C 402 372, 402 403, 380 411"
-                fill="none"
-                stroke="#B08D57"
-                strokeOpacity="0.75"
-                strokeWidth="1.5"
-              />
-              {/* Indent 3 (Innermost Inward Tier / Portal) */}
-              <path
-                d="M 380 371 C 409 377, 409 398, 380 404"
-                fill="#B08D57"
-                fillOpacity={isSelected('x-lab') ? '0.3' : '0.12'}
-                stroke="#B08D57"
-                strokeWidth="1.8"
-              />
-
-              {/* Inward Entrance Doorway at Apex */}
-              <rect x="403" y="382" width="4" height="11" rx="1.5" fill="#B08D57" />
+              {/* Notch Entrance Doorway */}
+              <rect x="424.5" y="392.5" width="16" height="4.5" rx="1.5" fill="#B08D57" />
               <text
-                x="410"
-                y="384"
-                textAnchor="start"
+                x="432.5"
+                y="387.5"
+                textAnchor="middle"
                 className="font-mono text-[7px] font-bold fill-[#B08D57] select-none pointer-events-none"
               >
                 ENTRY
@@ -989,6 +971,10 @@ export function InteractiveCampusMap({
                 className={`transition-all duration-200 group-hover:-translate-y-0.5 ${isSelected('jc-bose') ? 'fill-[#6C151E] stroke-[#B08D57] stroke-2' : 'fill-white dark:fill-[#201116] stroke-stone-300 dark:stroke-stone-700 stroke-1 group-hover:stroke-[#B08D57]'}`}
               />
               <line x1="535" y1="336" x2="640" y2="336" stroke="currentColor" strokeWidth="1" className={isSelected('jc-bose') ? 'text-[#B08D57]/60' : 'text-white/60 dark:text-white/10'} />
+
+              <rect x="577" y="332" width="16" height="4.5" rx="1.5" fill="#B08D57" />
+              <text x="585" y="327" textAnchor="middle" className="font-mono text-[7px] font-bold fill-[#B08D57] select-none pointer-events-none">ENTRY</text>
+
               <text
                 x="587"
                 y="382"
@@ -1150,6 +1136,10 @@ export function InteractiveCampusMap({
                 className={`transition-all duration-200 group-hover:-translate-y-0.5 ${isSelected('c-block') ? 'fill-[#6C151E] stroke-[#B08D57] stroke-2' : 'fill-white dark:fill-[#201116] stroke-stone-300 dark:stroke-stone-700 stroke-1 group-hover:stroke-[#B08D57]'}`}
               />
               <line x1="90" y1="611" x2="230" y2="611" stroke="currentColor" strokeWidth="1" className={isSelected('c-block') ? 'text-[#B08D57]/60' : 'text-white/60 dark:text-white/10'} />
+
+              <rect x="152" y="607" width="16" height="4.5" rx="1.5" fill="#B08D57" />
+              <text x="160" y="602" textAnchor="middle" className="font-mono text-[7px] font-bold fill-[#B08D57] select-none pointer-events-none">ENTRY</text>
+
               <text
                 x="160"
                 y="645"
@@ -1218,6 +1208,10 @@ export function InteractiveCampusMap({
                 className={`transition-all duration-200 group-hover:-translate-y-0.5 ${isSelected('food-court') ? 'fill-[#6C151E] stroke-[#B08D57] stroke-2' : 'fill-white dark:fill-[#201116] stroke-stone-300 dark:stroke-stone-700 stroke-1 group-hover:stroke-[#B08D57]'}`}
               />
               <line x1="570" y1="466" x2="685" y2="466" stroke="currentColor" strokeWidth="1" className={isSelected('food-court') ? 'text-[#B08D57]/60' : 'text-white/60 dark:text-white/10'} />
+
+              <rect x="552" y="477" width="16" height="4.5" rx="1.5" fill="#B08D57" />
+              <text x="560" y="472" textAnchor="middle" className="font-mono text-[7px] font-bold fill-[#B08D57] select-none pointer-events-none">ENTRY</text>
+
               <text
                 x="627"
                 y="525"
