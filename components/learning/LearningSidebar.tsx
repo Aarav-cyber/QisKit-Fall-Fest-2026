@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { BookOpen, Users, ChevronRight, ChevronDown, Award, PlayCircle, LogOut, Shield } from 'lucide-react';
 import clsx from 'clsx';
-import { supabase } from '@/lib/supabase/client';
+import { supabase } from '@/lib/supabase';
 import { CURRICULUM_SESSIONS } from '@/data/learning/curriculum';
 import { DAILY_COMPETITIONS } from '@/data/learning/competitions';
 
