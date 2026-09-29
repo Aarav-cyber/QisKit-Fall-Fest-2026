@@ -42,9 +42,9 @@ export const GATE3_ROUTES: Record<
 > = {
   'x-lab': {
     // Gate 3 -> past central axis to Vedavathi front -> turn south along western avenue -> inward curved entrance
-    path: 'M 740 310 L 515 310 L 515 450 L 432.5 450 L 432.5 440',
-    destPoint: { x: 432.5, y: 440 },
-    note: 'Enter from the southern notch entrance',
+    path: 'M 740 310 L 340 310 L 340 387.5 L 380 387.5',
+    destPoint: { x: 380, y: 387.5 },
+    note: 'Turn at Vedavathi front, enter through western notch entrance',
   },
   'jc-bose': {
     // Gate 3 -> JC Bose north facade
@@ -911,25 +911,25 @@ export function InteractiveCampusMap({
               className="cursor-pointer group"
               onClick={() => handleBuildingClick('x-lab')}
             >
-              {/* 3D Tall Facade Base (U-Shape / Square with Notch) */}
+              {/* 3D Tall Facade Base (Square with Left Notch) */}
               <path
-                d="M 380 343 L 485 343 L 485 448 L 450 448 L 450 403 L 415 403 L 415 448 L 380 448 Z"
+                d="M 380 343 L 485 343 L 485 448 L 380 448 L 380 413 L 415 413 L 415 378 L 380 378 Z"
                 className={isSelected('x-lab') ? 'fill-[#3B070D]' : 'fill-stone-300 dark:fill-[#120609]'}
               />
 
               {/* 3D Roof */}
               <path
-                d="M 380 335 L 485 335 L 485 440 L 450 440 L 450 395 L 415 395 L 415 440 L 380 440 Z"
+                d="M 380 335 L 485 335 L 485 440 L 380 440 L 380 405 L 415 405 L 415 370 L 380 370 Z"
                 filter={isSelected('x-lab') ? 'url(#shadow-3d-active)' : 'url(#shadow-3d-tall)'}
                 className={`transition-all duration-200 group-hover:-translate-y-0.5 ${isSelected('x-lab') ? 'fill-[#6C151E] stroke-[#B08D57] stroke-2' : 'fill-white dark:fill-[#201116] stroke-stone-300 dark:stroke-stone-700 stroke-1 group-hover:stroke-[#B08D57]'}`}
               />
 
-              {/* Notch Entrance Doorway */}
-              <rect x="424.5" y="392.5" width="16" height="4.5" rx="1.5" fill="#B08D57" />
+              {/* Left Notch Entrance Doorway */}
+              <rect x="378" y="385" width="4.5" height="16" rx="1.5" fill="#B08D57" />
               <text
-                x="432.5"
-                y="387.5"
-                textAnchor="middle"
+                x="373"
+                y="395"
+                textAnchor="end"
                 className="font-mono text-[7px] font-bold fill-[#B08D57] select-none pointer-events-none"
               >
                 ENTRY
