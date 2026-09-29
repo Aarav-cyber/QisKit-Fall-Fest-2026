@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { CheckCircle2, AlertCircle, XCircle, Loader2, Trash2 } from 'lucide-react';
+import { CheckCircle2, AlertCircle, XCircle, Loader2, Trash2, Plus } from 'lucide-react';
 
 interface TeammateData {
   email: string;
@@ -15,6 +15,8 @@ interface TeammateInputProps {
   member: TeammateData;
   onChange: (index: number, updated: TeammateData) => void;
   onRemove: (index: number) => void;
+  onAdd?: () => void;
+  canAdd?: boolean;
 }
 
 export function TeammateInput({
@@ -22,6 +24,8 @@ export function TeammateInput({
   member,
   onChange,
   onRemove,
+  onAdd,
+  canAdd = false,
 }: TeammateInputProps) {
   const [emailInput, setEmailInput] = useState(member.email || '');
   const [nameInput, setNameInput] = useState(member.fullName || '');
@@ -89,14 +93,26 @@ export function TeammateInput({
     <div className="p-3.5 rounded-lg border border-slate-200 bg-slate-50/50 space-y-2.5">
       <div className="flex items-center justify-between">
         <span className="text-xs font-semibold text-slate-700">Teammate {index + 1}</span>
-        <button
-          type="button"
-          onClick={() => onRemove(index)}
-          className="text-slate-400 hover:text-rose-600 transition-colors p-1"
-          title="Remove teammate"
-        >
-          <Trash2 className="w-3.5 h-3.5" />
-        </button>
+        <div className="flex items-center gap-1">
+          {canAdd && onAdd && (
+            <button
+              type="button"
+              onClick={onAdd}
+              className="text-burgundy hover:text-burgundy-deep transition-colors p-1"
+              title="Add another teammate"
+            >
+              <Plus className="w-4 h-4" />
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => onRemove(index)}
+            className="text-slate-400 hover:text-rose-600 transition-colors p-1"
+            title="Remove teammate"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
