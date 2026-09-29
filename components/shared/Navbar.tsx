@@ -124,6 +124,11 @@ export function Navbar() {
     };
   }, [mobileMenuOpen]);
 
+  // Hide Navbar completely on learning routes as per full-screen UI requirement
+  if (pathname?.startsWith('/learning')) {
+    return null;
+  }
+
   return (
     <header 
       ref={headerRef}

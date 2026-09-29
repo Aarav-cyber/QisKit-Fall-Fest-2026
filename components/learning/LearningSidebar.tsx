@@ -1,15 +1,17 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { BookOpen, Users, ChevronRight, Award, Lock } from 'lucide-react';
+import { BookOpen, Users, ChevronRight, ChevronDown, Award, PlayCircle } from 'lucide-react';
 import clsx from 'clsx';
+import { CURRICULUM_SESSIONS } from '@/data/learning/curriculum';
+import { DAILY_COMPETITIONS } from '@/data/learning/competitions';
 
 const DAYS = [
-  { id: 1, label: 'Day 1: Foundations', unlocked: true },
-  { id: 2, label: 'Day 2: Physical Realization', unlocked: true },
-  { id: 3, label: 'Day 3: Applications & Security', unlocked: true },
+  { id: 1, label: 'Day 1: Foundations' },
+  { id: 2, label: 'Day 2: Physical Realization' },
+  { id: 3, label: 'Day 3: Applications & Security' },
 ];
 
 export function LearningSidebar() {
@@ -17,18 +19,28 @@ export function LearningSidebar() {
   const searchParams = useSearchParams();
   
   const isHackathon = pathname === '/learning/hackathon';
-  const activeDay = isHackathon ? null : Number(searchParams?.get('day')) || 1;
+  const activeSessionId = searchParams?.get('session');
+  const activeChallengeDay = searchParams?.get('challenge');
+
+  // Determine which day is open in the accordion. If a session or challenge is active, open that day.
+  const initialOpenDay = activeSessionId 
+    ? CURRICULUM_SESSIONS.find(s => s.id === activeSessionId)?.day 
+    : activeChallengeDay 
+      ? Number(activeChallengeDay) 
+      : 1;
+
+  const [openDay, setOpenDay] = useState<number | null>(initialOpenDay || 1);
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm overflow-hidden sticky top-24">
+    <div className="flex flex-col h-full bg-white">
       {/* Header section */}
-      <div className="p-5 border-b border-slate-100 bg-slate-50/50">
+      <div className="p-6 border-b border-slate-100 bg-white sticky top-0 z-10">
         <div className="flex items-center gap-2 mb-2">
           <span className="px-2 py-0.5 rounded bg-burgundy/10 text-burgundy font-bold text-[10px] uppercase tracking-wider">
             Curriculum
           </span>
         </div>
-        <h2 className="text-lg font-bold text-slate-900 tracking-tight">
+        <h2 className="text-xl font-bold text-slate-900 tracking-tight">
           Masterclass 2026
         </h2>
         <p className="text-xs text-slate-500 mt-1 leading-relaxed">
@@ -37,30 +49,78 @@ export function LearningSidebar() {
       </div>
 
       {/* Nav items */}
-      <nav className="p-3 space-y-1">
-        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-3 pb-2 pt-2">
+      <nav className="flex-1 overflow-y-auto p-4 space-y-1">
+        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-3 pb-2">
           Learning Phase
         </div>
         
         {DAYS.map((day) => {
-          const isActive = activeDay === day.id;
+          const isDayOpen = openDay === day.id;
+          const daySessions = CURRICULUM_SESSIONS.filter(s => s.day === day.id);
+          const dayChallenge = DAILY_COMPETITIONS[day.id];
+
           return (
-            <Link
-              key={day.id}
-              href={`/learning?day=${day.id}`}
-              className={clsx(
-                'w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-all duration-200 text-sm font-semibold group',
-                isActive 
-                  ? 'bg-burgundy/5 text-burgundy border border-burgundy/20' 
-                  : 'text-slate-600 hover:bg-slate-50 border border-transparent'
+            <div key={day.id} className="mb-2">
+              <button
+                onClick={() => setOpenDay(isDayOpen ? null : day.id)}
+                className={clsx(
+                  'w-full flex items-center justify-between px-3 py-3 rounded-lg transition-all duration-200 text-sm font-semibold group',
+                  isDayOpen 
+                    ? 'bg-slate-50 text-slate-900' 
+                    : 'text-slate-600 hover:bg-slate-50'
+                )}
+              >
+                <div className="flex items-center gap-3">
+                  <BookOpen className={clsx('w-4 h-4', isDayOpen ? 'text-slate-800' : 'text-slate-400 group-hover:text-slate-600')} />
+                  <span>{day.label}</span>
+                </div>
+                {isDayOpen ? (
+                  <ChevronDown className="w-4 h-4 text-slate-400" />
+                ) : (
+                  <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-600" />
+                )}
+              </button>
+
+              {/* Expandable Sessions & Challenge */}
+              {isDayOpen && (
+                <div className="mt-1 pl-4 space-y-1">
+                  {daySessions.map(session => {
+                    const isActive = activeSessionId === session.id;
+                    return (
+                      <Link
+                        key={session.id}
+                        href={`/learning?session=${session.id}`}
+                        className={clsx(
+                          'flex items-center gap-2.5 px-3 py-2 rounded-md text-xs transition-colors',
+                          isActive
+                            ? 'bg-burgundy/10 text-burgundy font-semibold'
+                            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 font-medium'
+                        )}
+                      >
+                        <PlayCircle className={clsx('w-3.5 h-3.5', isActive ? 'text-burgundy' : 'text-slate-400')} />
+                        <span className="line-clamp-1">{session.title}</span>
+                      </Link>
+                    );
+                  })}
+
+                  {/* Daily Challenge inside the day */}
+                  {dayChallenge && (
+                    <Link
+                      href={`/learning?challenge=${day.id}`}
+                      className={clsx(
+                        'flex items-center gap-2.5 px-3 py-2 mt-1 rounded-md text-xs transition-colors',
+                        activeChallengeDay === String(day.id)
+                          ? 'bg-burgundy/10 text-burgundy font-semibold'
+                          : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 font-medium'
+                      )}
+                    >
+                      <Award className={clsx('w-3.5 h-3.5', activeChallengeDay === String(day.id) ? 'text-burgundy' : 'text-slate-400')} />
+                      <span className="line-clamp-1">Daily Challenge</span>
+                    </Link>
+                  )}
+                </div>
               )}
-            >
-              <div className="flex items-center gap-3">
-                <BookOpen className={clsx('w-4 h-4', isActive ? 'text-burgundy' : 'text-slate-400 group-hover:text-slate-600')} />
-                <span>{day.label}</span>
-              </div>
-              <ChevronRight className={clsx('w-3.5 h-3.5 transition-transform', isActive ? 'text-burgundy translate-x-0.5' : 'text-slate-300')} />
-            </Link>
+            </div>
           );
         })}
 
@@ -71,7 +131,7 @@ export function LearningSidebar() {
         <Link
           href="/learning/hackathon"
           className={clsx(
-            'w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-all duration-200 text-sm font-semibold group',
+            'w-full flex items-center justify-between px-3 py-3 rounded-lg transition-all duration-200 text-sm font-semibold group',
             isHackathon 
               ? 'bg-burgundy/5 text-burgundy border border-burgundy/20' 
               : 'text-slate-600 hover:bg-slate-50 border border-transparent'
