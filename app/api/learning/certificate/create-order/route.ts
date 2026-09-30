@@ -7,7 +7,7 @@ import {
   CERTIFICATE_PRICE_INR,
   razorpayInstance,
 } from '@/lib/razorpay';
-import { supabase } from '@/lib/supabase';
+import { supabaseAdmin } from '@/lib/supabase-admin';
 import crypto from 'crypto';
 
 export async function POST() {
@@ -61,7 +61,7 @@ export async function POST() {
     }
 
     // 4. Record order in certificate_orders table
-    const { data: orderRecord, error: dbError } = await supabase
+    const { data: orderRecord, error: dbError } = await supabaseAdmin
       .from('certificate_orders')
       .insert({
         user_email: session.email.toLowerCase().trim(),

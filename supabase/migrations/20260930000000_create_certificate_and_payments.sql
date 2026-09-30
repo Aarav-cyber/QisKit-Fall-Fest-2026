@@ -26,18 +26,9 @@ CREATE INDEX IF NOT EXISTS idx_cert_orders_rzp_id ON public.certificate_orders (
 
 ALTER TABLE public.certificate_orders ENABLE ROW LEVEL SECURITY;
 
+-- Secure certificate_orders: only accessible via Service Role (API routes)
 DROP POLICY IF EXISTS "Allow anon read certificate_orders" ON public.certificate_orders;
-CREATE POLICY "Allow anon read certificate_orders" 
-ON public.certificate_orders 
-FOR SELECT 
-USING (true);
-
 DROP POLICY IF EXISTS "Allow anon write certificate_orders" ON public.certificate_orders;
-CREATE POLICY "Allow anon write certificate_orders" 
-ON public.certificate_orders 
-FOR ALL 
-USING (true) 
-WITH CHECK (true);
 
 -- ============================================================================
 -- 2. TABLE: issued_certificates (Official Minted Credentials)
@@ -68,9 +59,5 @@ ON public.issued_certificates
 FOR SELECT 
 USING (true);
 
+-- Secure issued_certificates: only writable via Service Role, but readable publicly for verification
 DROP POLICY IF EXISTS "Allow anon write issued_certificates" ON public.issued_certificates;
-CREATE POLICY "Allow anon write issued_certificates" 
-ON public.issued_certificates 
-FOR ALL 
-USING (true) 
-WITH CHECK (true);

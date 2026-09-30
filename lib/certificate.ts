@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { supabase } from './supabase';
+import { supabaseAdmin as supabase } from './supabase-admin';
 import { CURRICULUM_SESSIONS } from '@/data/learning/curriculum';
 
 export interface EligibilityResult {

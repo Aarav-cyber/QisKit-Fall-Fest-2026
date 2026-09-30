@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyWebhookSignature } from '@/lib/razorpay';
 import { mintCertificate } from '@/lib/certificate';
-import { supabase } from '@/lib/supabase';
+import { supabaseAdmin } from '@/lib/supabase-admin';
 
 export async function POST(req: NextRequest) {
   try {
@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
       }
 
       // Check if order exists in database
-      const { data: order } = await supabase
+      const { data: order } = await supabaseAdmin
         .from('certificate_orders')
         .select('*')
         .eq('razorpay_order_id', orderId)
@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
       }
 
       // Mark order paid
-      await supabase
+      await supabaseAdmin
         .from('certificate_orders')
         .update({
           status: 'paid',
@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
 
       // Check if certificate was already minted
       const recipientEmail = (userEmail || order.user_email).toLowerCase().trim();
-      const { data: existingCert } = await supabase
+      const { data: existingCert } = await supabaseAdmin
         .from('issued_certificates')
         .select('id')
         .ilike('user_email', recipientEmail)

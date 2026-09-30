@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from '@/lib/auth';
 import { verifyPaymentSignature, razorpayInstance } from '@/lib/razorpay';
 import { checkCertificateEligibility, mintCertificate } from '@/lib/certificate';
-import { supabase } from '@/lib/supabase';
+import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession();
