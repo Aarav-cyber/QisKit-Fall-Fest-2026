@@ -4,6 +4,8 @@ import { SUPER_ADMIN_EMAILS } from '@/lib/auth';
 
 const COOKIE_NAME = 'qff_auth_session';
 
+export const runtime = 'edge';
+
 export async function GET(request: NextRequest) {
   const sessionCookie = request.cookies.get(COOKIE_NAME);
   if (!sessionCookie || !sessionCookie.value) {

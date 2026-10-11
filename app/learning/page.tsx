@@ -111,8 +111,8 @@ function LearningDashboardContent() {
 
   async function fetchSessionUser() {
     try {
-      const res = await fetch('/api/auth/session');
-      const data = await res.json();
+      const { getClientSession } = await import('@/lib/session-client');
+      const data = await getClientSession();
       if (data?.session) {
         setSessionUser({
           email: data.session.email,
